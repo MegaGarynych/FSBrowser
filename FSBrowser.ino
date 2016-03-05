@@ -38,9 +38,9 @@
 
 #define DBG_OUTPUT_PORT Serial
 
-const char* ssid = "Virus_Detected!!!";
-const char* password = "LaJunglaSigloXX1@.";
-const char* host = "esp8266fs";
+//const char* ssid = "";
+//const char* password = "";
+//const char* host = "esp8266fs";
 ntpClient* ntp;
 
 
@@ -67,7 +67,7 @@ void setup(void){
 	  defaultConfig();
   }
   //WIFI INIT
-  DBG_OUTPUT_PORT.printf("Connecting to %s\n", ssid);
+  
   ConfigureWifi();
   /*if (String(WiFi.SSID()) != String(ssid)) {
     WiFi.begin(ssid, password);
@@ -81,7 +81,7 @@ void setup(void){
   DBG_OUTPUT_PORT.print("Connected! IP address: ");
   DBG_OUTPUT_PORT.println(WiFi.localIP());*/
 
-  MDNS.begin(host);
+  MDNS.begin(config.DeviceName.c_str());
   DBG_OUTPUT_PORT.print("Open http://");
   DBG_OUTPUT_PORT.print(host);
   DBG_OUTPUT_PORT.println(".local/edit to see the file browser");

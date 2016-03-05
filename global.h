@@ -11,6 +11,13 @@
 #include <Ticker.h>
 #include <ESP8266WiFi.h>
 
+typedef enum {
+	FIRST_RUN = 0,
+	WIFI_STA_CONNECTED = 1,
+	WIFI_STA_DISCONNECTED = 2,
+	AP_ONLY = 3
+} wifiStatus;
+
 extern boolean firstStart; // On firststart = true, NTP will try to get a valid time
 extern int AdminTimeOutCounter; // Counter for Disabling the AdminMode
 extern unsigned long UnixTimestamp; // GLOBALTIME  ( Will be set by NTP)
@@ -22,6 +29,8 @@ extern boolean wifiIsConnected;
 extern long wifiDisconnectedSince;
 extern boolean APStarted;
 extern boolean APMode;
+extern wifiStatus currentWifiStatus;
+
 
 void ConfigureWifi();
 void ConfigureWifiAP();

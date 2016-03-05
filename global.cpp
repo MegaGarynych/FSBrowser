@@ -19,11 +19,18 @@ boolean wifiIsConnected = false;
 long wifiDisconnectedSince = 0;
 boolean APStarted = false;
 boolean APMode = false;
+wifiStatus currentWifiStatus = FIRST_RUN;
 
 void ConfigureWifi()
 {
-	WiFi.mode(WIFI_AP);
+	if (config.APEnable) {
+		WiFi.mode(WIFI_AP_STA);
+	}
+	else {
+		WiFi.mode(WIFI_STA);
+	}
 	WiFi.enableAP(false);
+	DBG_OUTPUT_PORT.printf("Connecting to %s\n", config.ssid.c_str());
 	WiFi.begin(config.ssid.c_str(), config.password.c_str());
 	if (!config.dhcp)
 	{
@@ -40,6 +47,9 @@ void ConfigureWifi()
 		delay(1000);
 		Serial.print(".");
 	}
+	/*if (WL_CONNECTED) {
+		currentWifiStatus = WIFI_STA_CONNECTED;
+	}*/
 	//DBG_OUTPUT_PORT.println("");
 	//DBG_OUTPUT_PORT.print("Connected! IP address: ");
 	DBG_OUTPUT_PORT.printf("IP Address: %s\n", WiFi.localIP().toString().c_str());
@@ -124,19 +134,21 @@ void WiFiEvent(WiFiEvent_t event) {
 		case WIFI_EVENT_STAMODE_GOT_IP:
 			//DBG_OUTPUT_PORT.println(event);
 			digitalWrite(0, LOW);
-			wifiIsConnected = true;
+			//wifiIsConnected = true;
 			wifiDisconnectedSince = 0;
 			APMode = false;
+			currentWifiStatus = WIFI_STA_CONNECTED;
 			break;
 		case WIFI_EVENT_STAMODE_DISCONNECTED:
 			//DBG_OUTPUT_PORT.println(event);
 			digitalWrite(0, HIGH);
-			if (wifiIsConnected) {
-				wifiIsConnected = false;
+			if (currentWifiStatus == WIFI_STA_CONNECTED) {
+				currentWifiStatus == WIFI_STA_DISCONNECTED;
+				//wifiIsConnected = false;
 				wifiDisconnectedSince = millis();
 			}
 			DBG_OUTPUT_PORT.println((millis() - wifiDisconnectedSince));
-			if (!APMode) {
+			if (!config.APEnable) {
 				DBG_OUTPUT_PORT.println("Disabling STA. Starting AP");
 				if ((millis() - wifiDisconnectedSince) > 10000) {
 					DBG_OUTPUT_PORT.println("AP mode started");

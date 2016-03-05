@@ -15,7 +15,7 @@ strConfig config;
 //
 // Summertime calculates the daylight saving for a given date.
 //
-boolean summertime(int year, byte month, byte day, byte hour, byte tzHours)
+/*boolean summertime(int year, byte month, byte day, byte hour, byte tzHours)
 // input parameters: "normal time" for year, month, day, hour and tzHours (0=UTC, 1=MEZ)
 {
 	if (month<3 || month>10) return false; // keine Sommerzeit in Jan, Feb, Nov, Dez
@@ -24,7 +24,7 @@ boolean summertime(int year, byte month, byte day, byte hour, byte tzHours)
 		return true;
 	else
 		return false;
-}
+}*/
 
 /*void ConvertUnixTimeStamp(unsigned long TimeStamp, strDateTime* DateTime)
 {
@@ -98,8 +98,8 @@ unsigned char h2int(char c)
 
 void defaultConfig (){
 	// DEFAULT CONFIG
-	config.ssid = "Virus_Detected!!!";
-	config.password = "LaJunglaSigloXX1@.";
+	config.ssid = "YOUR_WIFI_SSID";
+	config.password = "YOUR_WIFI_PASSWD";
 	config.dhcp = true;
 	config.IP[0] = 192; config.IP[1] = 168; config.IP[2] = 5; config.IP[3] = 14;
 	config.Netmask[0] = 255; config.Netmask[1] = 255; config.Netmask[2] = 255; config.Netmask[3] = 0;
@@ -110,6 +110,10 @@ void defaultConfig (){
 	config.timezone = 10;
 	config.daylight = true;
 	config.DeviceName = "ESP8266fs";
+	config.APEnable = true;
+	config.APssid = "ESP";
+	config.APpassword = "12345678";
+	config.APtimeout = 5;
 	save_config();
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 }
@@ -188,6 +192,10 @@ boolean load_config() {
 	config.timezone = json["timeZone"];
 	config.daylight = json["daylight"];
 	config.DeviceName = json["deviceName"].asString();
+	config.APEnable = json["APEnable"];
+	config.APssid = json["APssid"].asString();
+	config.APpassword = json["APpasswd"].asString();
+	config.APtimeout = json["APtimeout"];
 
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.println("Data initialized.");
@@ -240,6 +248,10 @@ boolean save_config() {
 	json["timeZone"] = config.timezone;
 	json["daylight"] = config.daylight;
 	json["deviceName"] = config.DeviceName;
+	json["APEnable"] = config.APEnable;
+	json["APssid"] = config.APssid;
+	json["APpasswd"] = config.APpassword;
+	json["APtimeout"] = config.APtimeout;
 		
 	File configFile = SPIFFS.open("/config.json", "w");
 	if (!configFile) {

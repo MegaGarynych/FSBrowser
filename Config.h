@@ -12,6 +12,7 @@
 #endif
 
 #define CONNECTION_LED 0 // Connection LED pin
+#define AP_ENABLE_BUTTON 4 // Button pin to enable AP during startup for configuration
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>

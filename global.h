@@ -10,6 +10,7 @@
 #endif
 #include <Ticker.h>
 #include <ESP8266WiFi.h>
+#include <NTPClientLib.h>
 
 typedef enum {
 	FIRST_RUN = 0,
@@ -18,27 +19,23 @@ typedef enum {
 	AP_ONLY
 } wifiStatus;
 
-extern boolean firstStart; // On firststart = true, NTP will try to get a valid time
-extern int AdminTimeOutCounter; // Counter for Disabling the AdminMode
-extern unsigned long UnixTimestamp; // GLOBALTIME  ( Will be set by NTP)
-extern Ticker tkSecond; // Second - Timer for Updating Datetime Structure
-extern boolean AdminEnabled; // Enable Admin Mode for a given Time
-extern int cNTP_Update; // Counter for Updating the time via NTP
-extern boolean Refresh; // For Main Loop, to refresh things like GPIO / WS2812
-extern boolean wifiIsConnected;
+
+extern Ticker secondTk; // Second - Timer to do periodic tasks
+extern boolean secondFlag;
+extern ntpClient* ntp;
+
 extern long wifiDisconnectedSince;
-extern boolean APStarted;
-extern boolean APMode;
+
 extern wifiStatus currentWifiStatus;
 
 
 void ConfigureWifi();
 void ConfigureWifiAP();
-//void Second_Tick();
+void secondTick();
+void secondTask();
 String urldecode(String input);
 boolean checkRange(String Value);
 void WiFiEvent(WiFiEvent_t event);
-//void checkSTAStatus();
 
 #endif
 

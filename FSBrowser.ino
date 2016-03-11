@@ -38,10 +38,7 @@
 
 #define DBG_OUTPUT_PORT Serial
 
-//const char* ssid = "";
-//const char* password = "";
-//const char* host = "esp8266fs";
-ntpClient* ntp;
+
 
 
 
@@ -50,6 +47,9 @@ void setup(void){
   DBG_OUTPUT_PORT.print("\n");
   DBG_OUTPUT_PORT.setDebugOutput(true);
   pinMode(CONNECTION_LED, OUTPUT); // CONNECTION_LED pin defined as output
+  pinMode(AP_ENABLE_BUTTON, INPUT);
+  secondTk.attach( 1 , secondTick);
+  apConfig.APenable = digitalRead(AP_ENABLE_BUTTON);
   digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
   WiFi.onEvent(WiFiEvent);
   //File System Init
@@ -74,18 +74,7 @@ void setup(void){
   else {
 	  ConfigureWifi();
   }
-  /*if (String(WiFi.SSID()) != String(ssid)) {
-    WiFi.begin(ssid, password);
-  }
   
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    DBG_OUTPUT_PORT.print(".");
-  }
-  DBG_OUTPUT_PORT.println("");
-  DBG_OUTPUT_PORT.print("Connected! IP address: ");
-  DBG_OUTPUT_PORT.println(WiFi.localIP());*/
-
   MDNS.begin(config.DeviceName.c_str());
   DBG_OUTPUT_PORT.print("Open http://");
   DBG_OUTPUT_PORT.print(config.DeviceName);
@@ -102,6 +91,9 @@ void setup(void){
 void loop(void){
   server.handleClient();
   //checkSTAStatus();
-  /*Serial.println(ntp->getTimeString());
-  delay(1000);*/
+  if (secondFlag) {
+	  secondFlag = false;
+	  secondTask();
+  }
+  //delay(1000);
 }

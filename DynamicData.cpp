@@ -196,7 +196,7 @@ void send_network_configuration_html()
 		server.send(200, "text/html", Page_WaitAndReload);
 		save_config();
 		ConfigureWifi();
-		AdminTimeOutCounter = 0;
+		//AdminTimeOutCounter = 0;
 
 	}
 	else
@@ -234,7 +234,7 @@ void send_NTP_configuration_html()
 			}
 		}
 		save_config();
-		firstStart = true;
+		//firstStart = true;
 	}
 	handleFileRead("/ntp.html");
 	//server.send(200, "text/html", PAGE_NTPConfiguration);

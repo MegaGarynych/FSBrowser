@@ -8,34 +8,22 @@
 #include "Config.h"
 #include <ESP8266WiFi.h>
 
-boolean firstStart = true;
+
 int AdminTimeOutCounter = 0;
-unsigned long UnixTimestamp = 0;
-Ticker tkSecond;
-boolean AdminEnabled = true;
-int cNTP_Update = 0;
-boolean Refresh = false;
-boolean wifiIsConnected = false;
+
+Ticker secondTk;
+boolean secondFlag = false;
+ntpClient* ntp;
+//boolean wifiIsConnected = false;
 long wifiDisconnectedSince = 0;
-long wifiAPOnlySince = 0;
-boolean APStarted = false;
-boolean APMode = false;
 wifiStatus currentWifiStatus = FIRST_RUN;
-int wifiTimeoutMinutes = 5;
-int wifiAPMinutes = 5;
+
+
 
 void ConfigureWifi()
 {
-	/*if (config.APEnable) {
-		WiFi.mode(WIFI_AP_STA);
-		ConfigureWifiAP();
-	}
-	else */
-	{
-		WiFi.mode(WIFI_STA);
-	}
+	WiFi.mode(WIFI_STA);
 	currentWifiStatus = WIFI_STA_DISCONNECTED;
-	//WiFi.enableAP(false);
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.printf("Connecting to %s\n", config.ssid.c_str());
 #endif // DEBUG
@@ -62,8 +50,7 @@ void ConfigureWifi()
 	if (WiFi.isConnected()) {
 		currentWifiStatus = WIFI_STA_CONNECTED;
 	}
-		//DBG_OUTPUT_PORT.println("");
-	//DBG_OUTPUT_PORT.print("Connected! IP address: ");
+
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.printf("IP Address: %s\n", WiFi.localIP().toString().c_str());
 	DBG_OUTPUT_PORT.printf("Gateway:    %s\n", WiFi.gatewayIP().toString().c_str());
@@ -84,9 +71,10 @@ void ConfigureWifiAP() {
 	WiFi.softAP(APname.c_str(), apConfig.APpassword.c_str());
 }
 
-/*void Second_Tick()
+void secondTick()
 {
-	strDateTime tempDateTime;
+	secondFlag = true;
+	/*strDateTime tempDateTime;
 	AdminTimeOutCounter++;
 	cNTP_Update++;
 	UnixTimestamp++;
@@ -104,8 +92,12 @@ void ConfigureWifiAP() {
 	{
 		DateTime = tempDateTime;
 	}
-	Refresh = true;
-}*/
+	Refresh = true;*/
+}
+
+void secondTask() {
+	DBG_OUTPUT_PORT.println(ntp->getTimeString());
+}
 
 String urldecode(String input) // (based on https://code.google.com/p/avr-netino/)
 {
@@ -176,7 +168,6 @@ void WiFiEvent(WiFiEvent_t event) {
 			digitalWrite(CONNECTION_LED, LOW); // Turn LED on
 			//wifiIsConnected = true;
 			wifiDisconnectedSince = 0;
-			//APMode = false;
 			currentWifiStatus = WIFI_STA_CONNECTED;
 			break;
 		case WIFI_EVENT_STAMODE_DISCONNECTED:
@@ -200,23 +191,3 @@ void WiFiEvent(WiFiEvent_t event) {
 			}*/
 	}
 }
-
-/*void checkSTAStatus() {
-	if (currentWifiStatus == WIFI_STA_DISCONNECTED) {
-		if ((millis() - wifiDisconnectedSince) > (wifiTimeoutMinutes*60000)) {
-			DBG_OUTPUT_PORT.printf("Wifi Search timeout. Diconnecting for %d minutes\nSetting AP Only mode\n", wifiAPMinutes);
-			//WiFi.mode(WIFI_AP);
-			//currentWifiStatus = AP_ONLY;
-			//wifiAPOnlySince = 0;
-		}
-	}
-	else if (currentWifiStatus == AP_ONLY) {
-		if ((millis() - wifiAPOnlySince) > (wifiAPMinutes * 60000)) {
-			DBG_OUTPUT_PORT.printf("Wifi AP timeout. Searching for %d minutes\n", wifiTimeoutMinutes);
-			WiFi.mode(WIFI_AP_STA);
-			currentWifiStatus = WIFI_STA_DISCONNECTED;
-			wifiAPOnlySince = 0;
-		}
-	}
-
-}*/

@@ -10,6 +10,9 @@
 #else
 	#include "WProgram.h"
 #endif
+
+#define CONNECTION_LED 0 // Connection LED pin
+
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
@@ -28,11 +31,13 @@ typedef struct {
 	long timezone;
 	boolean daylight;
 	String DeviceName;
+} strConfig;
+
+typedef struct {
 	String APssid = "ESP";
 	String APpassword = "12345678";
-	boolean APEnable = true;
-	uint APtimeout = 5;
-} strConfig;
+	boolean APenable = false;
+} strApConfig;
 
 /*typedef struct {
 	byte hour=10;
@@ -49,6 +54,7 @@ typedef struct {
 #define LEAP_YEAR(Y) ( ((1970+Y)>0) && !((1970+Y)%4) && ( ((1970+Y)%100) || !((1970+Y)%400) ) )*/
 
 extern strConfig config;
+extern strApConfig apConfig;
 //extern strDateTime DateTime;
 
 //boolean summertime(int year, byte month, byte day, byte hour, byte tzHours);

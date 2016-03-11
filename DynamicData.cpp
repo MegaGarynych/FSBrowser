@@ -97,7 +97,7 @@ void send_network_configuration_values_html()
 	String values = "";
 
 	values += "ssid|" + (String)config.ssid + "|input\n";
-	//values += "password|" + (String)config.password + "|input\n";
+	values += "password|" + (String)config.password + "|input\n";
 	values += "ip_0|" + (String)config.IP[0] + "|input\n";
 	values += "ip_1|" + (String)config.IP[1] + "|input\n";
 	values += "ip_2|" + (String)config.IP[2] + "|input\n";
@@ -115,6 +115,7 @@ void send_network_configuration_values_html()
 	values += "dns_2|" + (String)config.DNS[2] + "|input\n";
 	values += "dns_3|" + (String)config.DNS[3] + "|input\n";
 	values += "dhcp|" + (String)(config.dhcp ? "checked" : "") + "|chk\n";
+	
 	server.send(200, "text/plain", values);
 	Serial.println(__FUNCTION__);
 
@@ -172,25 +173,25 @@ void send_network_configuration_html()
 		config.dhcp = false;
 		for (uint8_t i = 0; i < server.args(); i++) {
 			DBG_OUTPUT_PORT.printf("Arg %d: %s\n",i, server.arg(i).c_str());
-			if (server.argName(i) == "ssid") config.ssid = urldecode(server.arg(i));
-			if (server.argName(i) == "password") config.password = urldecode(server.arg(i));
-			if (server.argName(i) == "ip_0") if (checkRange(server.arg(i))) 	config.IP[0] = server.arg(i).toInt();
-			if (server.argName(i) == "ip_1") if (checkRange(server.arg(i))) 	config.IP[1] = server.arg(i).toInt();
-			if (server.argName(i) == "ip_2") if (checkRange(server.arg(i))) 	config.IP[2] = server.arg(i).toInt();
-			if (server.argName(i) == "ip_3") if (checkRange(server.arg(i))) 	config.IP[3] = server.arg(i).toInt();
-			if (server.argName(i) == "nm_0") if (checkRange(server.arg(i))) 	config.Netmask[0] = server.arg(i).toInt();
-			if (server.argName(i) == "nm_1") if (checkRange(server.arg(i))) 	config.Netmask[1] = server.arg(i).toInt();
-			if (server.argName(i) == "nm_2") if (checkRange(server.arg(i))) 	config.Netmask[2] = server.arg(i).toInt();
-			if (server.argName(i) == "nm_3") if (checkRange(server.arg(i))) 	config.Netmask[3] = server.arg(i).toInt();
-			if (server.argName(i) == "gw_0") if (checkRange(server.arg(i))) 	config.Gateway[0] = server.arg(i).toInt();
-			if (server.argName(i) == "gw_1") if (checkRange(server.arg(i))) 	config.Gateway[1] = server.arg(i).toInt();
-			if (server.argName(i) == "gw_2") if (checkRange(server.arg(i))) 	config.Gateway[2] = server.arg(i).toInt();
-			if (server.argName(i) == "gw_3") if (checkRange(server.arg(i))) 	config.Gateway[3] = server.arg(i).toInt();
-			if (server.argName(i) == "dns_0") if (checkRange(server.arg(i))) 	config.DNS[0] = server.arg(i).toInt();
-			if (server.argName(i) == "dns_1") if (checkRange(server.arg(i))) 	config.DNS[1] = server.arg(i).toInt();
-			if (server.argName(i) == "dns_2") if (checkRange(server.arg(i))) 	config.DNS[2] = server.arg(i).toInt();
-			if (server.argName(i) == "dns_3") if (checkRange(server.arg(i))) 	config.DNS[3] = server.arg(i).toInt();
-			if (server.argName(i) == "dhcp") config.dhcp = true;
+			if (server.argName(i) == "ssid") {	config.ssid = urldecode(server.arg(i));	continue; }
+			if (server.argName(i) == "password") {	config.password = urldecode(server.arg(i)); continue; }
+			if (server.argName(i) == "ip_0") {	if (checkRange(server.arg(i))) 	config.IP[0] = server.arg(i).toInt(); continue;	}
+			if (server.argName(i) == "ip_1") {  if (checkRange(server.arg(i))) 	config.IP[1] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "ip_2") {  if (checkRange(server.arg(i))) 	config.IP[2] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "ip_3") {  if (checkRange(server.arg(i))) 	config.IP[3] = server.arg(i).toInt(); continue;	}
+			if (server.argName(i) == "nm_0") {  if (checkRange(server.arg(i))) 	config.Netmask[0] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "nm_1") {  if (checkRange(server.arg(i))) 	config.Netmask[1] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "nm_2") {  if (checkRange(server.arg(i))) 	config.Netmask[2] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "nm_3") {  if (checkRange(server.arg(i))) 	config.Netmask[3] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "gw_0") {  if (checkRange(server.arg(i))) 	config.Gateway[0] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "gw_1") {  if (checkRange(server.arg(i))) 	config.Gateway[1] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "gw_2") {  if (checkRange(server.arg(i))) 	config.Gateway[2] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "gw_3") {  if (checkRange(server.arg(i))) 	config.Gateway[3] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "dns_0") { if (checkRange(server.arg(i))) 	config.DNS[0] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "dns_1") { if (checkRange(server.arg(i))) 	config.DNS[1] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "dns_2") { if (checkRange(server.arg(i))) 	config.DNS[2] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "dns_3") { if (checkRange(server.arg(i))) 	config.DNS[3] = server.arg(i).toInt(); continue; }
+			if (server.argName(i) == "dhcp") { config.dhcp = true; continue; }
 		}
 		server.send(200, "text/html", Page_WaitAndReload);
 		save_config();

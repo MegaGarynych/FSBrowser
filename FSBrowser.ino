@@ -49,10 +49,11 @@ void setup(void){
   DBG_OUTPUT_PORT.begin(115200);
   DBG_OUTPUT_PORT.print("\n");
   DBG_OUTPUT_PORT.setDebugOutput(true);
-  pinMode(0, OUTPUT);
-  digitalWrite(0, HIGH);
+  pinMode(CONNECTION_LED, OUTPUT); // CONNECTION_LED pin defined as output
+  digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
   WiFi.onEvent(WiFiEvent);
   //File System Init
+  DBG_OUTPUT_PORT.println("ttttttttttttttttttttttttttttttttttttttt");
   SPIFFS.begin();
   { // List files
     Dir dir = SPIFFS.openDir("/");
@@ -67,8 +68,12 @@ void setup(void){
 	  defaultConfig();
   }
   //WIFI INIT
-  
-  ConfigureWifi();
+  if (apConfig.APenable) {
+	  ConfigureWifiAP();
+  }
+  else {
+	  ConfigureWifi();
+  }
   /*if (String(WiFi.SSID()) != String(ssid)) {
     WiFi.begin(ssid, password);
   }
@@ -83,10 +88,10 @@ void setup(void){
 
   MDNS.begin(config.DeviceName.c_str());
   DBG_OUTPUT_PORT.print("Open http://");
-  DBG_OUTPUT_PORT.print(host);
+  DBG_OUTPUT_PORT.print(config.DeviceName);
   DBG_OUTPUT_PORT.println(".local/edit to see the file browser");
   ntp = ntpClient::getInstance(config.ntpServerName, config.timezone/10 , config.daylight);
-  if (config.Update_Time_Via_NTP_Every > 0) {
+  if (config.Update_Time_Via_NTP_Every > 0) { // Enable NTP sync
 	  ntp->setInterval(15, config.Update_Time_Via_NTP_Every*60);
 	  ntp->begin();
   }
@@ -96,6 +101,7 @@ void setup(void){
  
 void loop(void){
   server.handleClient();
+  //checkSTAStatus();
   /*Serial.println(ntp->getTimeString());
   delay(1000);*/
 }

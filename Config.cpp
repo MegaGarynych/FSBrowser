@@ -10,6 +10,7 @@
 
 
 strConfig config;
+strApConfig apConfig;
 //strDateTime DateTime;
 
 //
@@ -110,10 +111,6 @@ void defaultConfig (){
 	config.timezone = 10;
 	config.daylight = true;
 	config.DeviceName = "ESP8266fs";
-	config.APEnable = true;
-	config.APssid = "ESP";
-	config.APpassword = "12345678";
-	config.APtimeout = 5;
 	save_config();
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 }
@@ -126,7 +123,7 @@ boolean load_config() {
 	}
 
 	size_t size = configFile.size();
-	if (size > 512) {
+	if (size > 660) {
 		Serial.println("Config file size is too large");
 		return false;
 	}
@@ -138,6 +135,7 @@ boolean load_config() {
 	// buffer to be mutable. If you don't use ArduinoJson, you may as well
 	// use configFile.readString instead.
 	configFile.readBytes(buf.get(), size);
+	configFile.close();
 #ifdef DEBUG
 	Serial.print("JSON file size: "); Serial.print(size); Serial.println(" bytes");
 #endif
@@ -192,19 +190,14 @@ boolean load_config() {
 	config.timezone = json["timeZone"];
 	config.daylight = json["daylight"];
 	config.DeviceName = json["deviceName"].asString();
-	config.APEnable = json["APEnable"];
-	config.APssid = json["APssid"].asString();
-	config.APpassword = json["APpasswd"].asString();
-	config.APtimeout = json["APtimeout"];
 
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.println("Data initialized.");
 	DBG_OUTPUT_PORT.print("SSID: "); Serial.println(config.ssid);
 	DBG_OUTPUT_PORT.print("PASS: "); Serial.println(config.password);
 	DBG_OUTPUT_PORT.print("NTP Server: "); Serial.println(config.ntpServerName);
-#endif
-
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+#endif // DEBUG
 	return true;
 }
 
@@ -213,7 +206,7 @@ boolean save_config() {
 #ifdef DEBUG
 	Serial.println("Save config");
 #endif
-	StaticJsonBuffer<512> jsonBuffer;
+	StaticJsonBuffer<660> jsonBuffer;
 	JsonObject& json = jsonBuffer.createObject();
 	json["ssid"] = config.ssid;
 	json["pass"] = config.password;
@@ -248,11 +241,8 @@ boolean save_config() {
 	json["timeZone"] = config.timezone;
 	json["daylight"] = config.daylight;
 	json["deviceName"] = config.DeviceName;
-	json["APEnable"] = config.APEnable;
-	json["APssid"] = config.APssid;
-	json["APpasswd"] = config.APpassword;
-	json["APtimeout"] = config.APtimeout;
-		
+			
+	//TODO add AP data to html
 	File configFile = SPIFFS.open("/config.json", "w");
 	if (!configFile) {
 		Serial.println("Failed to open config file for writing");

@@ -13,9 +13,9 @@
 
 typedef enum {
 	FIRST_RUN = 0,
-	WIFI_STA_CONNECTED = 1,
-	WIFI_STA_DISCONNECTED = 2,
-	AP_ONLY = 3
+	WIFI_STA_CONNECTED,
+	WIFI_STA_DISCONNECTED,
+	AP_ONLY
 } wifiStatus;
 
 extern boolean firstStart; // On firststart = true, NTP will try to get a valid time
@@ -38,6 +38,7 @@ void ConfigureWifiAP();
 String urldecode(String input);
 boolean checkRange(String Value);
 void WiFiEvent(WiFiEvent_t event);
+//void checkSTAStatus();
 
 #endif
 

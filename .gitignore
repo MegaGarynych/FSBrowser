@@ -2,3 +2,5 @@ Debug/
 __vm/
 data2/
 *.vcxproj
+.vs/
+data/config.json

@@ -4,3 +4,5 @@ data2/
 *.vcxproj
 .vs/
 data/config.json
+*.sln
+*.filters

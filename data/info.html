@@ -1,4 +1,4 @@
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+﻿<meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" href="style.css" type="text/css" />
 <script src="microajax.js"></script>
@@ -43,12 +43,17 @@
 		</td>
 	</tr>
 	<tr>
-		<td align="right">NTP Time:</td>
+		<td align="right">NTP Date:</td>
 		<td>
-			<span id="x_ntp"></span>
+			<span id="x_ntp_date"></span>
 		</td>
 	</tr>
-
+        <tr>
+            <td align="right">NTP Time:</td>
+            <td>
+                <span id="x_ntp_time"></span>
+            </td>
+        </tr>
 
 	<tr>
 		<td colspan="2" align="center">
@@ -94,4 +99,40 @@
 
 
 
+</script>
+<script language="javascript" type="text/javascript">
+    var wsUri = "ws://"+location.host+":81/";
+    //var wsUri = "ws://192.168.5.15:81/";
+    var output;
+
+    function init() {
+        testWebSocket();
+    }
+
+    function testWebSocket() {
+        websocket = new WebSocket(wsUri);
+        websocket.onopen = function (evt) {
+            console.log("CONNECTED");
+        };
+        websocket.onclose = function (evt) {
+            console.log("DISCONNECTED");
+        };
+        websocket.onmessage = function (evt) {
+            if (evt.data[0] == "T") {
+                var time;
+                time = evt.data.substring(1);
+                document.getElementById("x_ntp_time").innerHTML = time;
+            };
+            if (evt.data[0] == "D") {
+                var date;
+                date = evt.data.substring(1);
+                document.getElementById("x_ntp_date").innerHTML = date;
+            };
+        };
+        websocket.onerror = function (evt) {
+            console.log("ERROR: " + evt.data);
+        };
+    }
+
+    window.addEventListener("load", init, true);
 </script>

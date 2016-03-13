@@ -23,9 +23,11 @@
   edit the page by going to http://esp8266fs.local/edit
 */
 
+#include <WebSocketsServer.h>
+#include <WebSockets.h>
 #include "global.h"
 #include <TimeLib.h>
-#include <NTPClientLib.h>
+#include <NtpClientLib.h>
 #include "DynamicData.h"
 #include "Config.h"
 #include "FSWebServer.h"
@@ -49,7 +51,8 @@ void setup(void){
   pinMode(CONNECTION_LED, OUTPUT); // CONNECTION_LED pin defined as output
   pinMode(AP_ENABLE_BUTTON, INPUT);
   secondTk.attach( 1 , secondTick);
-  apConfig.APenable = digitalRead(AP_ENABLE_BUTTON);
+  //apConfig.APenable = digitalRead(AP_ENABLE_BUTTON);
+  DBG_OUTPUT_PORT.printf("AP Enable = %d\n", apConfig.APenable);
   digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
   WiFi.onEvent(WiFiEvent);
   //File System Init
@@ -86,14 +89,21 @@ void setup(void){
   }
   serverInit();
 
+  wsServer.begin();
+  wsServer.onEvent(webSocketEvent);
+  DBG_OUTPUT_PORT.println("END Setup");
 }
  
 void loop(void){
   server.handleClient();
+  //DBG_OUTPUT_PORT.println("HANDLE CLIENT");
   //checkSTAStatus();
   if (secondFlag) {
 	  secondFlag = false;
 	  secondTask();
+	  DBG_OUTPUT_PORT.println("SECOND TASK");
   }
+  wsServer.loop();
+  //DBG_OUTPUT_PORT.println("WSSERVER LOOP");
   //delay(1000);
 }

@@ -21,5 +21,8 @@ void send_NTP_configuration_html();
 
 String GetMacAddress();
 
+void sendTimeData();
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght);
+
 #endif
 

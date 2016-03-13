@@ -10,7 +10,9 @@
 #endif
 #include <Ticker.h>
 #include <ESP8266WiFi.h>
-#include <NTPClientLib.h>
+#include <NtpClientLib.h>
+#include <WebSocketsServer.h>
+#include <WebSockets.h>
 
 typedef enum {
 	FIRST_RUN = 0,
@@ -27,6 +29,8 @@ extern ntpClient* ntp;
 extern long wifiDisconnectedSince;
 
 extern wifiStatus currentWifiStatus;
+
+extern WebSocketsServer wsServer;
 
 
 void ConfigureWifi();

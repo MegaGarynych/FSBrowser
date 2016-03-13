@@ -12,6 +12,8 @@
 //extern strDateTime DateTime;
 extern ntpClient* ntp;
 
+int wsNumber = 0;
+
 const char Page_WaitAndReload[] PROGMEM = R"=====(
 <meta http-equiv="refresh" content="5; URL=config.html">
 Please Wait....Configuring and Restarting.
@@ -135,7 +137,7 @@ void send_information_values_html()
 	values += "x_gateway|" + (String)WiFi.gatewayIP()[0] + "." + (String)WiFi.gatewayIP()[1] + "." + (String)WiFi.gatewayIP()[2] + "." + (String)WiFi.gatewayIP()[3] + "|div\n";
 	values += "x_netmask|" + (String)WiFi.subnetMask()[0] + "." + (String)WiFi.subnetMask()[1] + "." + (String)WiFi.subnetMask()[2] + "." + (String)WiFi.subnetMask()[3] + "|div\n";
 	values += "x_mac|" + GetMacAddress() + "|div\n";
-	values += "x_ntp|" + ntp->getTimeString() + "|div\n";
+	//values += "x_ntp|" + ntp->getTimeString() + "|div\n";
 	/*values += "x_ntp|" + (String)DateTime.hour + ":" + (String)+DateTime.minute + ":" + (String)DateTime.second + " " + (String)DateTime.year + "-" + (String)DateTime.month + "-" + (String)DateTime.day + "|div\n";*/
 	server.send(200, "text/plain", values);
 	Serial.println(__FUNCTION__);
@@ -239,5 +241,49 @@ void send_NTP_configuration_html()
 	handleFileRead("/ntp.html");
 	//server.send(200, "text/html", PAGE_NTPConfiguration);
 	Serial.println(__FUNCTION__);
+
+}
+
+void sendTimeData() {
+	//DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+	String time = "T" + ntp->getTimeStr();
+	wsServer.sendTXT(wsNumber,time);
+	String date = "D" + ntp->getDateStr();
+	wsServer.sendTXT(wsNumber, date);
+}
+
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
+
+	switch (type) {
+	case WStype_DISCONNECTED:
+		DBG_OUTPUT_PORT.printf("[%u] Disconnected!\n", num);
+		break;
+	case WStype_CONNECTED:
+	{
+		wsNumber = num;
+		IPAddress ip = wsServer.remoteIP(num);
+		DBG_OUTPUT_PORT.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+
+		// send message to client
+		//wsServer.sendTXT(num, "Connected");
+	}
+	break;
+	case WStype_TEXT:
+		DBG_OUTPUT_PORT.printf("[%u] get Text: %s\n", num, payload);
+
+		// send message to client
+		// webSocket.sendTXT(num, "message here");
+
+		// send data to all connected clients
+		// webSocket.broadcastTXT("message here");
+		break;
+	case WStype_BIN:
+		DBG_OUTPUT_PORT.printf("[%u] get binary lenght: %u\n", num, lenght);
+		hexdump(payload, lenght);
+
+		// send message to client
+		// webSocket.sendBIN(num, payload, lenght);
+		break;
+	}
 
 }

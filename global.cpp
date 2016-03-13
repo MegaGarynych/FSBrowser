@@ -7,6 +7,7 @@
 #include "global.h"
 #include "Config.h"
 #include <ESP8266WiFi.h>
+#include "DynamicData.h"
 
 
 int AdminTimeOutCounter = 0;
@@ -17,6 +18,7 @@ ntpClient* ntp;
 //boolean wifiIsConnected = false;
 long wifiDisconnectedSince = 0;
 wifiStatus currentWifiStatus = FIRST_RUN;
+WebSocketsServer wsServer = WebSocketsServer(81);
 
 
 
@@ -96,7 +98,8 @@ void secondTick()
 }
 
 void secondTask() {
-	DBG_OUTPUT_PORT.println(ntp->getTimeString());
+	//DBG_OUTPUT_PORT.println(ntp->getTimeString());
+	sendTimeData();
 }
 
 String urldecode(String input) // (based on https://code.google.com/p/avr-netino/)

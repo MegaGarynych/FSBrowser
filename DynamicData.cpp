@@ -137,7 +137,7 @@ void send_information_values_html()
 	values += "x_gateway|" + (String)WiFi.gatewayIP()[0] + "." + (String)WiFi.gatewayIP()[1] + "." + (String)WiFi.gatewayIP()[2] + "." + (String)WiFi.gatewayIP()[3] + "|div\n";
 	values += "x_netmask|" + (String)WiFi.subnetMask()[0] + "." + (String)WiFi.subnetMask()[1] + "." + (String)WiFi.subnetMask()[2] + "." + (String)WiFi.subnetMask()[3] + "|div\n";
 	values += "x_mac|" + GetMacAddress() + "|div\n";
-	//values += "x_ntp|" + ntp->getTimeString() + "|div\n";
+	//values += "x_ntp_time|" + ntp->getTimeString() + "|div\n";
 	/*values += "x_ntp|" + (String)DateTime.hour + ":" + (String)+DateTime.minute + ":" + (String)DateTime.second + " " + (String)DateTime.year + "-" + (String)DateTime.month + "-" + (String)DateTime.day + "|div\n";*/
 	server.send(200, "text/plain", values);
 	Serial.println(__FUNCTION__);
@@ -245,11 +245,13 @@ void send_NTP_configuration_html()
 }
 
 void sendTimeData() {
-	//DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
-	String time = "T" + ntp->getTimeStr();
-	wsServer.sendTXT(wsNumber,time);
-	String date = "D" + ntp->getDateStr();
-	wsServer.sendTXT(wsNumber, date);
+	for (int i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++) {
+		//DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+		String time = "T" + ntp->getTimeStr();
+		wsServer.sendTXT(i, time);
+		String date = "D" + ntp->getDateStr();
+		wsServer.sendTXT(i, date);
+	}
 }
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {

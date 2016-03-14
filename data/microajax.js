@@ -1,22 +1,22 @@
 function microAjax(B,A){
     this.bindFunction=function(E,D) {
         return function() {
-            return E.apply(D,[D])
-        }
+            return E.apply(D,[D]);
+        };
     };
     this.stateChange=function(D) {
         if (this.request.readyState == 4) {
-            this.callbackFunction(this.request.responseText)
+            this.callbackFunction(this.request.responseText);
         }
     };
     this.getRequest = function () {
         if (window.ActiveXObject) {
-            return new ActiveXObject("Microsoft.XMLHTTP")
+            return new ActiveXObject("Microsoft.XMLHTTP");
         } else {
             if (window.XMLHttpRequest) {
-                return new XMLHttpRequest()
+                return new XMLHttpRequest();
             }
-        } return false
+        } return false;
     };
     this.postBody = (arguments[2] || "");
     this.callbackFunction = A;
@@ -29,13 +29,13 @@ function microAjax(B,A){
             C.open("POST", B, true);
             C.setRequestHeader("X-Requested-With", "XMLHttpRequest");
             C.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            C.setRequestHeader("Connection", "close")
+            C.setRequestHeader("Connection", "close");
         } else {
-            C.open("GET", B, true)
+            C.open("GET", B, true);
         }
-        C.send(this.postBody)
+        C.send(this.postBody);
     }
-};
+}
 
 function setValues(url)
 {

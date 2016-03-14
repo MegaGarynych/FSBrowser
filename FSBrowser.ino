@@ -51,7 +51,7 @@ void setup(void){
   pinMode(CONNECTION_LED, OUTPUT); // CONNECTION_LED pin defined as output
   pinMode(AP_ENABLE_BUTTON, INPUT);
   secondTk.attach( 1 , secondTick);
-  //apConfig.APenable = digitalRead(AP_ENABLE_BUTTON);
+  apConfig.APenable = digitalRead(AP_ENABLE_BUTTON);
   DBG_OUTPUT_PORT.printf("AP Enable = %d\n", apConfig.APenable);
   digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
   WiFi.onEvent(WiFiEvent);

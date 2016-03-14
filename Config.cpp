@@ -30,15 +30,15 @@ unsigned char h2int(char c)
 
 void defaultConfig (){
 	// DEFAULT CONFIG
-	config.ssid = "YOUR_WIFI_SSID";
-	config.password = "YOUR_WIFI_PASSWD";
+	config.ssid = "YOUR_DEFAULT_WIFI_SSID";
+	config.password = "YOUR_DEFAULT_WIFI_PASSWD";
 	config.dhcp = true;
-	config.IP[0] = 192; config.IP[1] = 168; config.IP[2] = 5; config.IP[3] = 14;
+	config.IP[0] = 192; config.IP[1] = 168; config.IP[2] = 1; config.IP[3] = 4;
 	config.Netmask[0] = 255; config.Netmask[1] = 255; config.Netmask[2] = 255; config.Netmask[3] = 0;
-	config.Gateway[0] = 192; config.Gateway[1] = 168; config.Gateway[2] = 5; config.Gateway[3] = 1;
-	config.DNS[0] = 192; config.DNS[1] = 168; config.DNS[2] = 5; config.DNS[3] = 1;
+	config.Gateway[0] = 192; config.Gateway[1] = 168; config.Gateway[2] = 1; config.Gateway[3] = 1;
+	config.DNS[0] = 192; config.DNS[1] = 168; config.DNS[2] = 1; config.DNS[3] = 1;
 	config.ntpServerName = "es.pool.ntp.org";
-	config.Update_Time_Via_NTP_Every = 0;
+	config.Update_Time_Via_NTP_Every = 5;
 	config.timezone = 10;
 	config.daylight = true;
 	config.DeviceName = "ESP8266fs";

@@ -43,19 +43,25 @@ void defaultConfig (){
 	config.daylight = true;
 	config.DeviceName = "ESP8266fs";
 	save_config();
+#ifdef DEBUG
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+#endif // DEBUG
 }
 
 boolean load_config() {
 	File configFile = SPIFFS.open("/config.json", "r");
 	if (!configFile) {
-		Serial.println("Failed to open config file");
+#ifdef DEBUG
+		DBG_OUTPUT_PORT.println("Failed to open config file");
+#endif // DEBUG
 		return false;
 	}
 
 	size_t size = configFile.size();
 	if (size > 660) {
-		Serial.println("Config file size is too large");
+#ifdef DEBUG
+		DBG_OUTPUT_PORT.println("Config file size is too large");
+#endif
 		return false;
 	}
 
@@ -68,14 +74,16 @@ boolean load_config() {
 	configFile.readBytes(buf.get(), size);
 	configFile.close();
 #ifdef DEBUG
-	Serial.print("JSON file size: "); Serial.print(size); Serial.println(" bytes");
+	DBG_OUTPUT_PORT.print("JSON file size: "); Serial.print(size); Serial.println(" bytes");
 #endif
 
 	StaticJsonBuffer<512> jsonBuffer;
 	JsonObject& json = jsonBuffer.parseObject(buf.get());
 
 	if (!json.success()) {
-		Serial.println("Failed to parse config file");
+#ifdef DEBUG
+		DBG_OUTPUT_PORT.println("Failed to parse config file");
+#endif // DEBUG
 		return false;
 	}
 #ifdef DEBUG
@@ -135,7 +143,7 @@ boolean load_config() {
 boolean save_config() {
 	//flag_config = false;
 #ifdef DEBUG
-	Serial.println("Save config");
+	DBG_OUTPUT_PORT.println("Save config");
 #endif
 	StaticJsonBuffer<660> jsonBuffer;
 	JsonObject& json = jsonBuffer.createObject();
@@ -176,7 +184,9 @@ boolean save_config() {
 	//TODO add AP data to html
 	File configFile = SPIFFS.open("/config.json", "w");
 	if (!configFile) {
-		Serial.println("Failed to open config file for writing");
+#ifdef DEBUG
+		DBG_OUTPUT_PORT.println("Failed to open config file for writing");
+#endif // DEBUG
 		return false;
 	}
 

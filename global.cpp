@@ -66,10 +66,10 @@ void ConfigureWifiAP() {
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 #endif // DEBUG
-	WiFi.disconnect();
+	//WiFi.disconnect();
 	WiFi.mode(WIFI_AP);
-	String APname = apConfig.APssid;
-	APname += (String)ESP.getChipId();
+	String APname = apConfig.APssid + (String)ESP.getChipId();
+	//APname += (String)ESP.getChipId();
 	WiFi.softAP(APname.c_str(), apConfig.APpassword.c_str());
 }
 

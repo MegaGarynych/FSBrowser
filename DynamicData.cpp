@@ -12,7 +12,9 @@
 //extern strDateTime DateTime;
 extern ntpClient* ntp;
 
+#ifdef DEBUG
 int wsNumber = 0;
+#endif // DEBUG
 
 const char Page_WaitAndReload[] PROGMEM = R"=====(
 <meta http-equiv="refresh" content="5; URL=config.html">
@@ -24,7 +26,9 @@ void send_general_configuration_values_html()
 	String values = "";
 	values += "devicename|" + (String)config.DeviceName + "|input\n";
 	server.send(200, "text/plain", values);
+#ifdef DEBUG
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
+#endif // DEBUG
 }
 
 //
@@ -85,7 +89,9 @@ void send_connection_state_values_html()
 	values += "connectionstate|" + state + "|div\n";
 	values += "networks|" + Networks + "|div\n";
 	server.send(200, "text/plain", values);
+#ifdef DEBUG
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
+#endif
 
 }
 
@@ -119,8 +125,9 @@ void send_network_configuration_values_html()
 	values += "dhcp|" + (String)(config.dhcp ? "checked" : "") + "|chk\n";
 	
 	server.send(200, "text/plain", values);
-	Serial.println(__FUNCTION__);
-
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+#endif // DEBUG
 }
 
 //
@@ -141,9 +148,11 @@ void send_information_values_html()
 	values += "x_ntp_sync|" + ntp->getTimeString(ntp->getLastNTPSync()) + "|div\n";
 	values += "x_ntp_time|" + ntp->getTimeStr() + "|div\n";
 	values += "x_ntp_date|" + ntp->getDateStr() + "|div\n";
-	/*values += "x_ntp|" + (String)DateTime.hour + ":" + (String)+DateTime.minute + ":" + (String)DateTime.second + " " + (String)DateTime.year + "-" + (String)DateTime.month + "-" + (String)DateTime.day + "|div\n";*/
+	
 	server.send(200, "text/plain", values);
-	Serial.println(__FUNCTION__);
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.println(__FUNCTION__);
+#endif // DEBUG
 
 }
 
@@ -165,20 +174,26 @@ void send_NTP_configuration_values_html()
 	values += "tz|" + (String)config.timezone + "|input\n";
 	values += "dst|" + (String)(config.daylight ? "checked" : "") + "|chk\n";
 	server.send(200, "text/plain", values);
-	Serial.println(__FUNCTION__);
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.println(__FUNCTION__);
+#endif // DEBUG
 
 }
 
 void send_network_configuration_html()
 {
+#ifdef DEBUG
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
+#endif
 	if (server.args() > 0)  // Save Settings
 	{
 		String temp = "";
 		config.dhcp = false;
 		for (uint8_t i = 0; i < server.args(); i++) {
-			DBG_OUTPUT_PORT.printf("Arg %d: %s\n",i, server.arg(i).c_str());
-			if (server.argName(i) == "ssid") {	config.ssid = urldecode(server.arg(i));	continue; }
+#ifdef DEBUG
+			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, server.arg(i).c_str());
+#endif // DEBUG
+			if (server.argName(i) == "ssid") { config.ssid = urldecode(server.arg(i));	continue; }
 			if (server.argName(i) == "password") {	config.password = urldecode(server.arg(i)); continue; }
 			if (server.argName(i) == "ip_0") {	if (checkRange(server.arg(i))) 	config.IP[0] = server.arg(i).toInt(); continue;	}
 			if (server.argName(i) == "ip_1") {  if (checkRange(server.arg(i))) 	config.IP[1] = server.arg(i).toInt(); continue; }
@@ -209,7 +224,9 @@ void send_network_configuration_html()
 		handleFileRead("/config.html");
 		//server.send(200, "text/html", PAGE_NetworkConfiguration);
 	}
-	Serial.println(__FUNCTION__);
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+#endif // DEBUG
 }
 
 void send_NTP_configuration_html()
@@ -243,13 +260,17 @@ void send_NTP_configuration_html()
 	}
 	handleFileRead("/ntp.html");
 	//server.send(200, "text/html", PAGE_NTPConfiguration);
-	Serial.println(__FUNCTION__);
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+#endif // DEBUG
 
 }
 
 void sendTimeData() {
 	for (int i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++) {
+#ifdef DEBUG
 		//DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+#endif // DEBUG
 		String time = "T" + ntp->getTimeStr();
 		wsServer.sendTXT(i, time);
 		String date = "D" + ntp->getDateStr();
@@ -263,21 +284,26 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 
 	switch (type) {
 	case WStype_DISCONNECTED:
+#ifdef DEBUG
 		DBG_OUTPUT_PORT.printf("[%u] Disconnected!\n", num);
+#endif
 		break;
 	case WStype_CONNECTED:
 	{
+#ifdef DEBUG
 		wsNumber = num;
 		IPAddress ip = wsServer.remoteIP(num);
 		DBG_OUTPUT_PORT.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+#endif // DEBUG
 
 		// send message to client
 		//wsServer.sendTXT(num, "Connected");
 	}
 	break;
 	case WStype_TEXT:
+#ifdef DEBUG
 		DBG_OUTPUT_PORT.printf("[%u] get Text: %s\n", num, payload);
-
+#endif
 		// send message to client
 		// webSocket.sendTXT(num, "message here");
 
@@ -285,7 +311,9 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 		// webSocket.broadcastTXT("message here");
 		break;
 	case WStype_BIN:
+#ifdef DEBUG
 		DBG_OUTPUT_PORT.printf("[%u] get binary lenght: %u\n", num, lenght);
+#endif // DEBUG
 		hexdump(payload, lenght);
 
 		// send message to client

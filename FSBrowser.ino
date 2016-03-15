@@ -47,63 +47,70 @@
 void setup(void){
   DBG_OUTPUT_PORT.begin(115200);
   DBG_OUTPUT_PORT.print("\n");
+#ifdef DEBUG
   DBG_OUTPUT_PORT.setDebugOutput(true);
+#endif // DEBUG
   pinMode(CONNECTION_LED, OUTPUT); // CONNECTION_LED pin defined as output
-  pinMode(AP_ENABLE_BUTTON, INPUT);
-  secondTk.attach( 1 , secondTick);
-  apConfig.APenable = digitalRead(AP_ENABLE_BUTTON);
+  pinMode(AP_ENABLE_BUTTON, INPUT); // If this pin is HIGH during startup ESP will run in AP_ONLY mode. Backdoor to change WiFi settings when configured WiFi is not available.
+  secondTk.attach( 1 , secondTick); // Task to run periodic things every second
+  apConfig.APenable = digitalRead(AP_ENABLE_BUTTON); // Read AP button
+#ifdef DEBUG
   DBG_OUTPUT_PORT.printf("AP Enable = %d\n", apConfig.APenable);
+#endif // DEBUG
   digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
-  WiFi.onEvent(WiFiEvent);
+  WiFi.onEvent(WiFiEvent); // Register wifi Event to control connection LED
   //File System Init
-  DBG_OUTPUT_PORT.println("ttttttttttttttttttttttttttttttttttttttt");
   SPIFFS.begin();
+#ifdef DEBUG
   { // List files
     Dir dir = SPIFFS.openDir("/");
     while (dir.next()) {    
       String fileName = dir.fileName();
       size_t fileSize = dir.fileSize();
-      DBG_OUTPUT_PORT.printf("FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
-    }
-    DBG_OUTPUT_PORT.printf("\n");
+
+	  DBG_OUTPUT_PORT.printf("FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
+	}
+	DBG_OUTPUT_PORT.printf("\n");
   }
-  if (!load_config()) {
-	  defaultConfig();
+#endif // DEBUG
+  if (!load_config()) { // Try to lad configuration from SPIFFS
+	  defaultConfig(); // Load defaults if any error
   }
   //WIFI INIT
   if (apConfig.APenable) {
-	  ConfigureWifiAP();
+	  ConfigureWifiAP(); // Set AP mode if AP button was pressed
   }
   else {
-	  ConfigureWifi();
+	  ConfigureWifi(); // Set WiFi config
   }
   
-  MDNS.begin(config.DeviceName.c_str());
+  MDNS.begin(config.DeviceName.c_str()); // I've not got this to work. Need some investigation.
+#ifdef DEBUG
   DBG_OUTPUT_PORT.print("Open http://");
   DBG_OUTPUT_PORT.print(config.DeviceName);
   DBG_OUTPUT_PORT.println(".local/edit to see the file browser");
+#endif
+  // NTP client setup
   ntp = ntpClient::getInstance(config.ntpServerName, config.timezone/10 , config.daylight);
   if (config.Update_Time_Via_NTP_Every > 0) { // Enable NTP sync
 	  ntp->setInterval(15, config.Update_Time_Via_NTP_Every*60);
 	  ntp->begin();
   }
-  serverInit();
+  serverInit(); // Configure and start Web server
 
+  // Web socket server setup
   wsServer.begin();
   wsServer.onEvent(webSocketEvent);
+#ifdef DEBUG
   DBG_OUTPUT_PORT.println("END Setup");
+#endif // DEBUG
 }
  
 void loop(void){
-  server.handleClient();
-  //DBG_OUTPUT_PORT.println("HANDLE CLIENT");
-  //checkSTAStatus();
-  if (secondFlag) {
+  server.handleClient(); // Handle Web server requests
+  if (secondFlag) { // Run periodic tasks
 	  secondFlag = false;
-	  secondTask();
-	  DBG_OUTPUT_PORT.println("SECOND TASK");
+	  secondTask(); 
   }
-  wsServer.loop();
-  //DBG_OUTPUT_PORT.println("WSSERVER LOOP");
-  //delay(1000);
+  wsServer.loop(); // Handle WebSocket server requests
 }

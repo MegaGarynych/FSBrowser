@@ -35,34 +35,20 @@ typedef struct {
 } strConfig;
 
 typedef struct {
-	String APssid = "ESP";
+	String APssid = "ESP"; // ChipID is appended to this name
 	String APpassword = "12345678";
-	boolean APenable = false;
+	boolean APenable = false; // AP disabled by default
 } strApConfig;
 
-/*typedef struct {
-	byte hour=10;
-	byte minute=15;
-	byte second=30;
-	int year=2016;
-	byte month=02;
-	byte day=28;
-	byte wday=6;
+extern strConfig config; // General and WiFi configuration
+extern strApConfig apConfig; // Static AP config settings
 
-} strDateTime;*/
-
-/*static const uint8_t monthDays[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
-#define LEAP_YEAR(Y) ( ((1970+Y)>0) && !((1970+Y)%4) && ( ((1970+Y)%100) || !((1970+Y)%400) ) )*/
-
-extern strConfig config;
-extern strApConfig apConfig;
-//extern strDateTime DateTime;
-
-//boolean summertime(int year, byte month, byte day, byte hour, byte tzHours);
 unsigned char h2int(char c);
-//void ConvertUnixTimeStamp(unsigned long TimeStamp, strDateTime* DateTime);
+
 void defaultConfig();
+
 boolean load_config();
+
 boolean save_config();
 
 

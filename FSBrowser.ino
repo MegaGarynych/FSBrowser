@@ -73,12 +73,13 @@ void setup(void){
 	DBG_OUTPUT_PORT.printf("\n");
   }
 #endif // DEBUG
-  if (!load_config()) { // Try to lad configuration from SPIFFS
+  if (!load_config()) { // Try to load configuration from SPIFFS
 	  defaultConfig(); // Load defaults if any error
   }
   //WIFI INIT
   if (apConfig.APenable) {
 	  ConfigureWifiAP(); // Set AP mode if AP button was pressed
+	  flashLED(3);
   }
   else {
 	  ConfigureWifi(); // Set WiFi config

@@ -194,3 +194,15 @@ void WiFiEvent(WiFiEvent_t event) {
 			}*/
 	}
 }
+
+void flashLED(int times) {
+	int oldState = digitalRead(CONNECTION_LED);
+
+	for (int i = 0; i < times; i++) {
+		digitalWrite(CONNECTION_LED, LOW); // Turn on LED
+		delay(500);
+		digitalWrite(CONNECTION_LED, HIGH); // Turn on LED
+		delay(500);
+	}
+	digitalWrite(CONNECTION_LED, oldState); // Turn on LED
+}

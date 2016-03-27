@@ -17,7 +17,7 @@ It has integrated NTP syncronization based on my own [NTPClient library](https:/
 
 Configuration is stored on SPIFFS too, in a JSON file. So, it recovers config during boot.
 
-==**There is no implemented security or authentication yet. Take this in account when connecting it to public networks or Internet.**==
+####**There is no implemented security or authentication yet. Take this in account when connecting it to public networks or Internet.**
 
 ##WiFi connection
 I've implemented a way to turn ESP8266 into AP mode so I can set WiFi config when prior WiFi is not available. It is done by setting IO pin 4 to high status during boot. You must ensure it is connected to GND to allow it to connect to a router.

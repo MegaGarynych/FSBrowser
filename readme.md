@@ -24,3 +24,9 @@ I've implemented a way to turn ESP8266 into AP mode so I can set WiFi config whe
 
 WiFi connection to router is confirmed via LED in pin 0 as soon an IP address is got. Same LED is used to confirm AP mode by flashing 3 times.
 
+##TODO
+
+- Network Authentication/Security
+- Configuration protection
+- HTTPS (in evaluation)
+- Integration of editor in admin.html

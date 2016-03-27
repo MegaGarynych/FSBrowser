@@ -7,13 +7,13 @@ I found [John Lassen's WebConfig project](http://www.john-lassen.de/index.php/pr
 
 So, I tried to fork it. Original WebConfig project stores web pages on PROGMEM, but I was recently using SPIFFS on ESP8266 and I think it is a good way to store web content. I found I was not the first to think this when I noticed about [FSBrowser](https://github.com/esp8266/Arduino/tree/master/libraries/ESP8266WebServer/examples/FSBrowser) example in [ESP8266WebServer](https://github.com/esp8266/Arduino/tree/master/libraries/ESP8266WebServer) library. 
 
-This example code has a great bonus. A text editor (based on [ACE](https://ace.c9.io/)) with syntax highligth that can be used to edit html on board directly. I found a [bug](https://github.com/esp8266/Arduino/pull/1771) on it (already sent to github) and noticed how usefull it is.
+This example code has a great bonus. A text editor (based on [ACE](https://ace.c9.io/)) with syntax highligth that can be used to edit html on board directly. I found a [bug](https://github.com/esp8266/Arduino/pull/1771) on it (already sent to github) and, when fixed, noticed how usefull this editor is.
 
-This project is a fork of both projects, havind a start framework for my future projects.
+My code is a fork of both projects, and has become a start framework for my future projects.
 
-I only have to add more HTML data and some funtions to show dynamic data.
+I only have to add more HTML data and some funtions to show dynamic data in order to adapt it to any other task.
 
-It has integrated NTP syncronization based on my own [NTPClient library](https://github.com/gmag11/NtpClient). It can be configured via Web browser too.
+It has integrated NTP syncronization based on my own [NTPClient library](https://github.com/gmag11/NtpClient), that can be configured via Web browser too.
 
 Configuration is stored on SPIFFS too, in a JSON file. So, it recovers config during boot.
 

@@ -30,3 +30,4 @@ WiFi connection to router is confirmed via LED in pin 0 as soon an IP address is
 - Configuration protection
 - HTTPS (in evaluation)
 - Integration of editor in admin.html
+- Convert code to classes and try to design a library to add all this functionality easily

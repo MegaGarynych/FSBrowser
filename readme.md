@@ -30,9 +30,9 @@ WiFi connection to router is confirmed via LED in pin 0 as soon an IP address is
 
 ##How to use it
 
-`http://ip_address/admin.html` takes you to main configuration GUI.
-`http://ip_address/edit` contains code editor. Any file stored in SPIFFS may be loaded here and saved using `CTRL+S` command.
-`http://ip_address/` includes an example info page that shows how to get realtime data from ESP.
+*`http://ip_address/admin.html` takes you to main configuration GUI.
+*`http://ip_address/edit` contains code editor. Any file stored in SPIFFS may be loaded here and saved using `CTRL+S` command.
+*`http://ip_address/` includes an example info page that shows how to get realtime data from ESP.
 
 ##TODO
 

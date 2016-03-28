@@ -77,15 +77,17 @@ void setup(void){
 	  defaultConfig(); // Load defaults if any error
   }
   //WIFI INIT
+  WiFi.hostname(config.DeviceName.c_str());
   if (apConfig.APenable) {
 	  ConfigureWifiAP(); // Set AP mode if AP button was pressed
-	  flashLED(3);
   }
   else {
 	  ConfigureWifi(); // Set WiFi config
   }
   
   MDNS.begin(config.DeviceName.c_str()); // I've not got this to work. Need some investigation.
+  MDNS.addService("http", "tcp", 80);
+  
 #ifdef DEBUG
   DBG_OUTPUT_PORT.print("Open http://");
   DBG_OUTPUT_PORT.print(config.DeviceName);

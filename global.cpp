@@ -71,6 +71,7 @@ void ConfigureWifiAP() {
 	String APname = apConfig.APssid + (String)ESP.getChipId();
 	//APname += (String)ESP.getChipId();
 	WiFi.softAP(APname.c_str(), apConfig.APpassword.c_str());
+	flashLED(3);
 }
 
 void secondTick()

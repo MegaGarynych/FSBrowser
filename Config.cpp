@@ -58,10 +58,11 @@ boolean load_config() {
 	}
 
 	size_t size = configFile.size();
-	if (size > 660) {
+	if (size > 1024) {
 #ifdef DEBUG
 		DBG_OUTPUT_PORT.println("Config file size is too large");
 #endif
+		configFile.close();
 		return false;
 	}
 
@@ -77,7 +78,7 @@ boolean load_config() {
 	DBG_OUTPUT_PORT.print("JSON file size: "); Serial.print(size); Serial.println(" bytes");
 #endif
 
-	StaticJsonBuffer<512> jsonBuffer;
+	StaticJsonBuffer<1024> jsonBuffer;
 	JsonObject& json = jsonBuffer.parseObject(buf.get());
 
 	if (!json.success()) {
@@ -145,7 +146,7 @@ boolean save_config() {
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.println("Save config");
 #endif
-	StaticJsonBuffer<660> jsonBuffer;
+	StaticJsonBuffer<1024> jsonBuffer;
 	JsonObject& json = jsonBuffer.createObject();
 	json["ssid"] = config.ssid;
 	json["pass"] = config.password;
@@ -187,6 +188,7 @@ boolean save_config() {
 #ifdef DEBUG
 		DBG_OUTPUT_PORT.println("Failed to open config file for writing");
 #endif // DEBUG
+		configFile.close();
 		return false;
 	}
 

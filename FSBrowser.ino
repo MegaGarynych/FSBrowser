@@ -37,6 +37,7 @@
 #include <ESP8266mDNS.h>
 #include <FS.h>
 #include <Ticker.h>
+#include <ArduinoOTA.h>
 
 #define DBG_OUTPUT_PORT Serial
 
@@ -52,6 +53,7 @@ void setup(void){
 #endif // DEBUG
   pinMode(CONNECTION_LED, OUTPUT); // CONNECTION_LED pin defined as output
   pinMode(AP_ENABLE_BUTTON, INPUT); // If this pin is HIGH during startup ESP will run in AP_ONLY mode. Backdoor to change WiFi settings when configured WiFi is not available.
+  analogWriteFreq(200);
   secondTk.attach( 1 , secondTick); // Task to run periodic things every second
   apConfig.APenable = digitalRead(AP_ENABLE_BUTTON); // Read AP button
 #ifdef DEBUG
@@ -84,10 +86,7 @@ void setup(void){
   else {
 	  ConfigureWifi(); // Set WiFi config
   }
-  
-  MDNS.begin(config.DeviceName.c_str()); // I've not got this to work. Need some investigation.
-  MDNS.addService("http", "tcp", 80);
-  
+  delay(5000);
 #ifdef DEBUG
   DBG_OUTPUT_PORT.print("Open http://");
   DBG_OUTPUT_PORT.print(config.DeviceName);
@@ -104,6 +103,13 @@ void setup(void){
   // Web socket server setup
   wsServer.begin();
   wsServer.onEvent(webSocketEvent);
+
+  
+
+  ConfigureOTA();
+
+  //MDNS.begin(config.DeviceName.c_str()); // I've not got this to work. Need some investigation.
+  MDNS.addService("http", "tcp", 80);
 #ifdef DEBUG
   DBG_OUTPUT_PORT.println("END Setup");
 #endif // DEBUG
@@ -116,4 +122,5 @@ void loop(void){
 	  secondTask(); 
   }
   wsServer.loop(); // Handle WebSocket server requests
+  ArduinoOTA.handle();
 }

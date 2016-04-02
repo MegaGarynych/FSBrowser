@@ -8,6 +8,7 @@
 #include "Config.h"
 #include <ESP8266WiFi.h>
 #include "DynamicData.h"
+#include <ArduinoOTA.h>
 
 
 int AdminTimeOutCounter = 0;
@@ -169,7 +170,8 @@ void WiFiEvent(WiFiEvent_t event) {
 	switch (event) {
 		case WIFI_EVENT_STAMODE_GOT_IP:
 			//DBG_OUTPUT_PORT.println(event);
-			digitalWrite(CONNECTION_LED, LOW); // Turn LED on
+			//digitalWrite(CONNECTION_LED, LOW); // Turn LED on
+			analogWrite(CONNECTION_LED, 10);
 			//wifiIsConnected = true;
 			wifiDisconnectedSince = 0;
 			currentWifiStatus = WIFI_STA_CONNECTED;
@@ -206,4 +208,35 @@ void flashLED(int times) {
 		delay(500);
 	}
 	digitalWrite(CONNECTION_LED, oldState); // Turn on LED
+}
+
+void ConfigureOTA() {
+	// Port defaults to 8266
+	// ArduinoOTA.setPort(8266);
+
+	// Hostname defaults to esp8266-[ChipID]
+	ArduinoOTA.setHostname(config.DeviceName.c_str());
+
+	// No authentication by default
+	ArduinoOTA.setPassword((const char *)"123");
+
+	ArduinoOTA.onStart([]() {
+		DBG_OUTPUT_PORT.println("StartOTA \n");
+	});
+	ArduinoOTA.onEnd([]() {
+		DBG_OUTPUT_PORT.println("\nEnd OTA\n");
+	});
+	ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+		DBG_OUTPUT_PORT.printf("OTA Progress: %u%%\r", (progress / (total / 100)));
+	});
+	ArduinoOTA.onError([](ota_error_t error) {
+		DBG_OUTPUT_PORT.printf("Error[%u]: ", error);
+		if (error == OTA_AUTH_ERROR) DBG_OUTPUT_PORT.println("Auth Failed");
+		else if (error == OTA_BEGIN_ERROR) DBG_OUTPUT_PORT.println("Begin Failed");
+		else if (error == OTA_CONNECT_ERROR) DBG_OUTPUT_PORT.println("Connect Failed");
+		else if (error == OTA_RECEIVE_ERROR) DBG_OUTPUT_PORT.println("Receive Failed");
+		else if (error == OTA_END_ERROR) DBG_OUTPUT_PORT.println("End Failed");
+	});
+	ArduinoOTA.begin();
+	DBG_OUTPUT_PORT.println("\nOTA Ready");
 }

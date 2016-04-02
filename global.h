@@ -41,6 +41,7 @@ String urldecode(String input);
 boolean checkRange(String Value);
 void WiFiEvent(WiFiEvent_t event);
 void flashLED(int times);
+void ConfigureOTA();
 
 #endif
 

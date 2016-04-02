@@ -187,7 +187,7 @@ void send_network_configuration_html()
 #endif
 	if (server.args() > 0)  // Save Settings
 	{
-		String temp = "";
+		//String temp = "";
 		config.dhcp = false;
 		for (uint8_t i = 0; i < server.args(); i++) {
 #ifdef DEBUG
@@ -236,27 +236,35 @@ void send_NTP_configuration_html()
 	if (server.args() > 0)  // Save Settings
 	{
 		config.daylight = false;
-		String temp = "";
+		//String temp = "";
 		for (uint8_t i = 0; i < server.args(); i++) {
 			if (server.argName(i) == "ntpserver") {
 				config.ntpServerName = urldecode(server.arg(i));
 				ntp->setNtpServerName(config.ntpServerName);
+				continue;
 			}
 			if (server.argName(i) == "update") {
 				config.Update_Time_Via_NTP_Every = server.arg(i).toInt();
 				ntp->setInterval(config.Update_Time_Via_NTP_Every * 60);
+				continue;
 			}
 			if (server.argName(i) == "tz") {
 				config.timezone = server.arg(i).toInt();
 				ntp->setTimeZone(config.timezone / 10);
+				continue;
 			}
 			if (server.argName(i) == "dst") {
 				config.daylight = true;
-				ntp->setDayLight(config.daylight);
+				DBG_OUTPUT_PORT.printf("Daylight Saving: %d\n", config.daylight);
+				continue;
 			}
 		}
+		
+		ntp->setDayLight(config.daylight);
 		save_config();
 		//firstStart = true;
+		
+		setTime(ntp->getTime()); //set time
 	}
 	handleFileRead("/ntp.html");
 	//server.send(200, "text/html", PAGE_NTPConfiguration);

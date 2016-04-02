@@ -17,6 +17,8 @@ It has integrated NTP syncronization based on my own [NTPClient library](https:/
 
 Configuration is stored on SPIFFS too, in a JSON file. So, it recovers config during boot.
 
+Implemented OTA Update with Arduino IDE.
+
 ####**There is no implemented security or authentication yet. Take this in account when connecting it to public networks or Internet.**
 
 ##WiFi connection
@@ -37,7 +39,8 @@ WiFi connection to router is confirmed via LED in pin 0 as soon an IP address is
 ##TODO
 
 - Network Authentication/Security
+- OTA update via web interface
 - Configuration protection
-- HTTPS (in evaluation)
+- HTTPS (in evaluation). *Not possible with ESP8266*
 - Integration of editor in admin.html
 - Convert code to classes and try to design a library to add all this functionality easily

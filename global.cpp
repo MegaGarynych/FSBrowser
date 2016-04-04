@@ -20,7 +20,8 @@ ntpClient* ntp;
 long wifiDisconnectedSince = 0;
 wifiStatus currentWifiStatus = FIRST_RUN;
 WebSocketsServer wsServer = WebSocketsServer(81);
-
+boolean ledOn = false;
+boolean ledOff = false;
 
 
 void ConfigureWifi()
@@ -72,7 +73,7 @@ void ConfigureWifiAP() {
 	String APname = apConfig.APssid + (String)ESP.getChipId();
 	//APname += (String)ESP.getChipId();
 	WiFi.softAP(APname.c_str(), apConfig.APpassword.c_str());
-	flashLED(3);
+	flashLED(3,150 );
 }
 
 void secondTick()
@@ -171,7 +172,8 @@ void WiFiEvent(WiFiEvent_t event) {
 		case WIFI_EVENT_STAMODE_GOT_IP:
 			//DBG_OUTPUT_PORT.println(event);
 			//digitalWrite(CONNECTION_LED, LOW); // Turn LED on
-			analogWrite(CONNECTION_LED, 10);
+			//dimLEDon(100);
+			ledOn = true;
 			//wifiIsConnected = true;
 			wifiDisconnectedSince = 0;
 			currentWifiStatus = WIFI_STA_CONNECTED;
@@ -180,7 +182,8 @@ void WiFiEvent(WiFiEvent_t event) {
 #ifdef DEBUG
 			DBG_OUTPUT_PORT.println("case STA_DISCONNECTED");
 #endif // DEBUG
-			digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
+			//digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
+			ledOff = true;
 			if (currentWifiStatus == WIFI_STA_CONNECTED) {
 				currentWifiStatus == WIFI_STA_DISCONNECTED;
 				//wifiIsConnected = false;
@@ -198,16 +201,27 @@ void WiFiEvent(WiFiEvent_t event) {
 	}
 }
 
-void flashLED(int times) {
+void flashLED(int times, int delayTime) {
 	int oldState = digitalRead(CONNECTION_LED);
 
 	for (int i = 0; i < times; i++) {
 		digitalWrite(CONNECTION_LED, LOW); // Turn on LED
-		delay(500);
+		delay(delayTime);
 		digitalWrite(CONNECTION_LED, HIGH); // Turn on LED
-		delay(500);
+		delay(delayTime);
 	}
 	digitalWrite(CONNECTION_LED, oldState); // Turn on LED
+}
+
+void dimLEDon(int range) {
+	//int oldState = digitalRead(CONNECTION_LED);
+	analogWriteRange(range);
+
+	for (int i = range; i > 0; i--) {
+		analogWrite(CONNECTION_LED, i);
+		delay(10);
+	}
+	//digitalWrite(CONNECTION_LED, oldState); // Turn on LED
 }
 
 void ConfigureOTA() {

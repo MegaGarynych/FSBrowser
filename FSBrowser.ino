@@ -59,7 +59,10 @@ void setup(void){
 #ifdef DEBUG
   DBG_OUTPUT_PORT.printf("AP Enable = %d\n", apConfig.APenable);
 #endif // DEBUG
-  digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
+
+  analogWriteRange(100);
+  analogWrite(CONNECTION_LED, 100);
+  //digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
   WiFi.onEvent(WiFiEvent); // Register wifi Event to control connection LED
   //File System Init
   SPIFFS.begin();
@@ -113,6 +116,7 @@ void setup(void){
 #ifdef DEBUG
   DBG_OUTPUT_PORT.println("END Setup");
 #endif // DEBUG
+
 }
  
 void loop(void){
@@ -123,4 +127,19 @@ void loop(void){
   }
   wsServer.loop(); // Handle WebSocket server requests
   ArduinoOTA.handle();
+  if (ledOff) {
+	  for (int i = 0; i < 100; i++) {
+		  analogWrite(CONNECTION_LED, i);
+		  delay(10);
+	  }
+	  ledOff = false;
+  }
+  if (ledOn) {
+	  for (int i = 100; i > 0; i--) {
+		  digitalWrite(CONNECTION_LED, HIGH);
+		  analogWrite(CONNECTION_LED, i);
+		  delay(10);
+	  }
+	  ledOn = false;
+  }
 }

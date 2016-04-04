@@ -32,6 +32,9 @@ extern wifiStatus currentWifiStatus;
 
 extern WebSocketsServer wsServer;
 
+extern boolean ledOn;
+extern boolean ledOff;
+
 
 void ConfigureWifi();
 void ConfigureWifiAP();
@@ -40,7 +43,8 @@ void secondTask();
 String urldecode(String input);
 boolean checkRange(String Value);
 void WiFiEvent(WiFiEvent_t event);
-void flashLED(int times);
+void flashLED(int times, int delayTime);
+void dimLEDon(int range);
 void ConfigureOTA();
 
 #endif

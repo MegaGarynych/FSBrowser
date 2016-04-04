@@ -21,6 +21,11 @@ const char Page_WaitAndReload[] PROGMEM = R"=====(
 Please Wait....Configuring and Restarting.
 )=====";
 
+/*const char Page_Restart[] PROGMEM = R"=====(
+<meta http-equiv="refresh" content="5; URL=system.html">
+Please Wait....Configuring and Restarting.
+)=====";*/
+
 void send_general_configuration_values_html()
 {
 	String values = "";
@@ -272,6 +277,12 @@ void send_NTP_configuration_html()
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 #endif // DEBUG
 
+}
+
+void restart_esp() {
+	//server.send(200, "text/html", Page_Restart);
+	delay(1000);
+	ESP.reset();
 }
 
 void sendTimeData() {

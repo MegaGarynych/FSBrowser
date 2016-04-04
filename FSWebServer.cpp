@@ -166,6 +166,10 @@ void serverInit() {
 	server.on("/config.html", send_network_configuration_html);
 	server.on("/ntp.html", send_NTP_configuration_html);
 	//server.on("/admin/devicename", send_devicename_value_html);
+	server.on("/admin", HTTP_GET, []() {
+		if (!handleFileRead("/admin.html")) server.send(404, "text/plain", "FileNotFound");
+	});
+	server.on("/admin/restart", restart_esp);
 
 	//called when the url is not defined here
 	//use it to load content from SPIFFS

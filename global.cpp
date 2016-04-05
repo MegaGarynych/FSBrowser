@@ -20,8 +20,7 @@ ntpClient* ntp;
 long wifiDisconnectedSince = 0;
 wifiStatus currentWifiStatus = FIRST_RUN;
 WebSocketsServer wsServer = WebSocketsServer(81);
-boolean ledOn = false;
-boolean ledOff = false;
+
 
 
 void ConfigureWifi()
@@ -73,7 +72,7 @@ void ConfigureWifiAP() {
 	String APname = apConfig.APssid + (String)ESP.getChipId();
 	//APname += (String)ESP.getChipId();
 	WiFi.softAP(APname.c_str(), apConfig.APpassword.c_str());
-	flashLED(3,150 );
+	flashLED(CONNECTION_LED, 3, 250);
 }
 
 void secondTick()
@@ -171,10 +170,7 @@ void WiFiEvent(WiFiEvent_t event) {
 	switch (event) {
 		case WIFI_EVENT_STAMODE_GOT_IP:
 			//DBG_OUTPUT_PORT.println(event);
-			//digitalWrite(CONNECTION_LED, LOW); // Turn LED on
-			//dimLEDon(100);
-			ledOn = true;
-			//wifiIsConnected = true;
+			digitalWrite(CONNECTION_LED, LOW); // Turn LED on
 			wifiDisconnectedSince = 0;
 			currentWifiStatus = WIFI_STA_CONNECTED;
 			break;
@@ -182,46 +178,37 @@ void WiFiEvent(WiFiEvent_t event) {
 #ifdef DEBUG
 			DBG_OUTPUT_PORT.println("case STA_DISCONNECTED");
 #endif // DEBUG
-			//digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
-			ledOff = true;
+			digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
+			flashLED(CONNECTION_LED, 2, 100);
 			if (currentWifiStatus == WIFI_STA_CONNECTED) {
 				currentWifiStatus == WIFI_STA_DISCONNECTED;
-				//wifiIsConnected = false;
 				wifiDisconnectedSince = millis();
 			}
-			DBG_OUTPUT_PORT.printf("Disconnected for %d seconds\n", (millis() - wifiDisconnectedSince)/1000);
-			/*if (!config.APEnable) {
-				DBG_OUTPUT_PORT.println("Disabling STA. Starting AP");
-				if ((millis() - wifiDisconnectedSince) > 10000) {
-					DBG_OUTPUT_PORT.println("AP mode started");
-					ConfigureWifiAP();
-					APMode = true;
-				}
-			}*/
+#ifdef DEBUG
+			DBG_OUTPUT_PORT.printf("Disconnected for %d seconds\n", (int)((millis() - wifiDisconnectedSince) / 1000));
+#endif // DEBUG
 	}
 }
 
-void flashLED(int times, int delayTime) {
-	int oldState = digitalRead(CONNECTION_LED);
+void flashLED(int pin, int times, int delayTime) {
+	int oldState = digitalRead(pin);
 
 	for (int i = 0; i < times; i++) {
-		digitalWrite(CONNECTION_LED, LOW); // Turn on LED
+		digitalWrite(pin, LOW); // Turn on LED
 		delay(delayTime);
-		digitalWrite(CONNECTION_LED, HIGH); // Turn on LED
+		digitalWrite(pin, HIGH); // Turn on LED
 		delay(delayTime);
 	}
-	digitalWrite(CONNECTION_LED, oldState); // Turn on LED
+	digitalWrite(pin, oldState); // Turn on LED
 }
 
-void dimLEDon(int range) {
-	//int oldState = digitalRead(CONNECTION_LED);
+void dimLEDon(int pin, int range) {
 	analogWriteRange(range);
 
 	for (int i = range; i > 0; i--) {
 		analogWrite(CONNECTION_LED, i);
 		delay(10);
 	}
-	//digitalWrite(CONNECTION_LED, oldState); // Turn on LED
 }
 
 void ConfigureOTA() {

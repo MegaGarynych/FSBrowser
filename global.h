@@ -43,8 +43,8 @@ void secondTask();
 String urldecode(String input);
 boolean checkRange(String Value);
 void WiFiEvent(WiFiEvent_t event);
-void flashLED(int times, int delayTime);
-void dimLEDon(int range);
+void flashLED(int pin, int times, int delayTime);
+void dimLEDon(int pin, int range);
 void ConfigureOTA();
 
 #endif

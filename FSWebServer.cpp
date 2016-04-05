@@ -207,8 +207,8 @@ void serverInit() {
 	//called when the url is not defined here
 	//use it to load content from SPIFFS
 	server.onNotFound([]() {
-		/*if (!server.authenticate(www_username, www_password))
-			return server.requestAuthentication();*/
+		if (!server.authenticate(www_username, www_password))
+			return server.requestAuthentication();
 		if (!handleFileRead(server.uri()))
 			server.send(404, "text/plain", "FileNotFound");
 	});

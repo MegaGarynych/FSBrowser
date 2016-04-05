@@ -45,7 +45,9 @@ String getContentType(String filename) {
 }
 
 bool handleFileRead(String path) {
+#ifdef DEBUG
 	DBG_OUTPUT_PORT.println("handleFileRead: " + path);
+#endif // DEBUG
 	if (path.endsWith("/")) path += "index.htm";
 	String contentType = getContentType(path);
 	String pathWithGz = path + ".gz";
@@ -58,8 +60,10 @@ bool handleFileRead(String path) {
 		file.close();
 		return true;
 	}
+#ifdef DEBUG
 	else
 		DBG_OUTPUT_PORT.printf("Cannot find %s\n", path.c_str());
+#endif // DEBUG
 	return false;
 }
 
@@ -69,7 +73,9 @@ void handleFileUpload() {
 	if (upload.status == UPLOAD_FILE_START) {
 		String filename = upload.filename;
 		if (!filename.startsWith("/")) filename = "/" + filename;
+#ifdef DEBUG
 		DBG_OUTPUT_PORT.print("handleFileUpload Name: "); DBG_OUTPUT_PORT.println(filename);
+#endif // DEBUG
 		fsUploadFile = SPIFFS.open(filename, "w");
 		filename = String();
 	}
@@ -81,14 +87,18 @@ void handleFileUpload() {
 	else if (upload.status == UPLOAD_FILE_END) {
 		if (fsUploadFile)
 			fsUploadFile.close();
+#ifdef DEBUG
 		DBG_OUTPUT_PORT.print("handleFileUpload Size: "); DBG_OUTPUT_PORT.println(upload.totalSize);
+#endif // DEBUG
 	}
 }
 
 void handleFileDelete() {
 	if (server.args() == 0) return server.send(500, "text/plain", "BAD ARGS");
 	String path = server.arg(0);
+#ifdef DEBUG
 	DBG_OUTPUT_PORT.println("handleFileDelete: " + path);
+#endif // DEBUG
 	if (path == "/")
 		return server.send(500, "text/plain", "BAD PATH");
 	if (!SPIFFS.exists(path))
@@ -102,7 +112,9 @@ void handleFileCreate() {
 	if (server.args() == 0)
 		return server.send(500, "text/plain", "BAD ARGS");
 	String path = server.arg(0);
+#ifdef DEBUG
 	DBG_OUTPUT_PORT.println("handleFileCreate: " + path);
+#endif // DEBUG
 	if (path == "/")
 		return server.send(500, "text/plain", "BAD PATH");
 	if (SPIFFS.exists(path))
@@ -120,7 +132,9 @@ void handleFileList() {
 	if (!server.hasArg("dir")) { server.send(500, "text/plain", "BAD ARGS"); return; }
 
 	String path = server.arg("dir");
+#ifdef DEBUG
 	DBG_OUTPUT_PORT.println("handleFileList: " + path);
+#endif // DEBUG
 	Dir dir = SPIFFS.openDir(path);
 	path = String();
 
@@ -138,7 +152,9 @@ void handleFileList() {
 	}
 
 	output += "]";
+#ifdef DEBUG
 	DBG_OUTPUT_PORT.println(output);
+#endif // DEBUG
 	server.send(200, "text/json", output);
 }
 
@@ -189,5 +205,8 @@ void serverInit() {
 		json = String();
 	});
 	server.begin();
+#ifdef DEBUG
 	DBG_OUTPUT_PORT.println("HTTP server started");
+
+#endif // DEBUG
 }

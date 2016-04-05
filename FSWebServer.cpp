@@ -10,6 +10,9 @@
 ESP8266WebServer server(80);
 File fsUploadFile;
 
+const char* www_username = "admin";
+const char* www_password = "esp8266";
+
 //format bytes
 String formatBytes(size_t bytes) {
 	if (bytes < 1024) {
@@ -145,15 +148,30 @@ void handleFileList() {
 void serverInit() {
 	//SERVER INIT
 	//list directory
-	server.on("/list", HTTP_GET, handleFileList);
+	server.on("/list", HTTP_GET, []() {
+		if (!server.authenticate(www_username, www_password))
+			return server.requestAuthentication();
+		handleFileList(); 
+	});
 	//load editor
 	server.on("/edit", HTTP_GET, []() {
-		if (!handleFileRead("/edit.html")) server.send(404, "text/plain", "FileNotFound");
+		if (!server.authenticate(www_username, www_password))
+			return server.requestAuthentication();
+		if (!handleFileRead("/edit.html")) 
+			server.send(404, "text/plain", "FileNotFound");
 	});
 	//create file
-	server.on("/edit", HTTP_PUT, handleFileCreate);
+	server.on("/edit", HTTP_PUT, []() {
+		if (!server.authenticate(www_username, www_password))
+			return server.requestAuthentication();
+		handleFileCreate();
+	});
 	//delete file
-	server.on("/edit", HTTP_DELETE, handleFileDelete);
+	server.on("/edit", HTTP_DELETE, []() {
+		if (!server.authenticate(www_username, www_password))
+			return server.requestAuthentication();
+		handleFileDelete();
+	});
 	//first callback is called after the request has ended with all parsed arguments
 	//second callback handles file uploads at that location
 	server.on("/edit", HTTP_POST, []() { server.send(200, "text/plain", ""); }, handleFileUpload);
@@ -163,17 +181,34 @@ void serverInit() {
 	server.on("/admin/connectionstate", send_connection_state_values_html);
 	server.on("/admin/infovalues", send_information_values_html);
 	server.on("/admin/ntpvalues", send_NTP_configuration_values_html);
-	server.on("/config.html", send_network_configuration_html);
-	server.on("/ntp.html", send_NTP_configuration_html);
+	server.on("/config.html", []() {
+		if (!server.authenticate(www_username, www_password))
+			return server.requestAuthentication();
+		send_network_configuration_html();
+	});
+	server.on("/ntp.html", []() {
+		if (!server.authenticate(www_username, www_password))
+			return server.requestAuthentication();
+		send_NTP_configuration_html();
+	});
 	//server.on("/admin/devicename", send_devicename_value_html);
 	server.on("/admin", HTTP_GET, []() {
-		if (!handleFileRead("/admin.html")) server.send(404, "text/plain", "FileNotFound");
+		if (!server.authenticate(www_username, www_password))
+			return server.requestAuthentication();
+		if (!handleFileRead("/admin.html")) 
+			server.send(404, "text/plain", "FileNotFound");
 	});
-	server.on("/admin/restart", restart_esp);
+	server.on("/admin/restart", []() {
+		if (!server.authenticate(www_username, www_password))
+			return server.requestAuthentication();
+		restart_esp();
+	});
 
 	//called when the url is not defined here
 	//use it to load content from SPIFFS
 	server.onNotFound([]() {
+		/*if (!server.authenticate(www_username, www_password))
+			return server.requestAuthentication();*/
 		if (!handleFileRead(server.uri()))
 			server.send(404, "text/plain", "FileNotFound");
 	});

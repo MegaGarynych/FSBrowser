@@ -25,7 +25,9 @@
 
 #include <WebSocketsServer.h>
 #include <WebSockets.h>
+#include <Hash.h>
 #include "global.h"
+#include <ArduinoJson.h>
 #include <TimeLib.h>
 #include <NtpClientLib.h>
 #include "DynamicData.h"
@@ -95,7 +97,7 @@ void setup(void){
   else {
 	  ConfigureWifi(); // Set WiFi config
   }
-  delay(5000);
+  delay(5000); // Wait for WiFi
 #ifdef DEBUG
   DBG_OUTPUT_PORT.print("Open http://");
   DBG_OUTPUT_PORT.print(config.DeviceName);

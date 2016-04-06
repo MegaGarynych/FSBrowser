@@ -232,7 +232,7 @@ boolean loadHTTPAuth() {
 	configFile.readBytes(buf.get(), size);
 	configFile.close();
 #ifdef DEBUG
-	DBG_OUTPUT_PORT.printf("JSON secret file size: %d %s\n", size, " bytes");
+	DBG_OUTPUT_PORT.printf("JSON secret file size: %d %s\n", size, "bytes");
 #endif
 
 	StaticJsonBuffer<256> jsonBuffer;
@@ -240,6 +240,9 @@ boolean loadHTTPAuth() {
 
 	if (!json.success()) {
 #ifdef DEBUG
+		String temp;
+		json.prettyPrintTo(temp);
+		DBG_OUTPUT_PORT.println(temp);
 		DBG_OUTPUT_PORT.println("Failed to parse secret file");
 #endif // DEBUG
 		return false;
@@ -247,7 +250,7 @@ boolean loadHTTPAuth() {
 #ifdef DEBUG
 	String temp;
 	json.prettyPrintTo(temp);
-	Serial.println(temp);
+	DBG_OUTPUT_PORT.println(temp);
 #endif
 	//memset(config.ssid, 0, 28);
 	//memset(config.pass, 0, 50);

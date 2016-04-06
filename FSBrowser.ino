@@ -25,7 +25,9 @@
 
 #include <WebSocketsServer.h>
 #include <WebSockets.h>
+#include <Hash.h>
 #include "global.h"
+#include <ArduinoJson.h>
 #include <TimeLib.h>
 #include <NtpClientLib.h>
 #include "DynamicData.h"
@@ -53,15 +55,21 @@ void setup(void){
 #endif // DEBUG
   pinMode(CONNECTION_LED, OUTPUT); // CONNECTION_LED pin defined as output
   pinMode(AP_ENABLE_BUTTON, INPUT); // If this pin is HIGH during startup ESP will run in AP_ONLY mode. Backdoor to change WiFi settings when configured WiFi is not available.
-  analogWriteFreq(200);
+  
+  //analogWriteFreq(200);
+  
   secondTk.attach( 1 , secondTick); // Task to run periodic things every second
+  
   apConfig.APenable = digitalRead(AP_ENABLE_BUTTON); // Read AP button
 #ifdef DEBUG
   DBG_OUTPUT_PORT.printf("AP Enable = %d\n", apConfig.APenable);
 #endif // DEBUG
+  
   digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
+  
   WiFi.onEvent(WiFiEvent); // Register wifi Event to control connection LED
-  //File System Init
+  
+						   //File System Init
   SPIFFS.begin();
 #ifdef DEBUG
   { // List files
@@ -75,9 +83,12 @@ void setup(void){
 	DBG_OUTPUT_PORT.printf("\n");
   }
 #endif // DEBUG
+  
   if (!load_config()) { // Try to load configuration from SPIFFS
 	  defaultConfig(); // Load defaults if any error
   }
+  loadHTTPAuth();
+
   //WIFI INIT
   WiFi.hostname(config.DeviceName.c_str());
   if (apConfig.APenable) {
@@ -86,7 +97,7 @@ void setup(void){
   else {
 	  ConfigureWifi(); // Set WiFi config
   }
-  delay(5000);
+  delay(5000); // Wait for WiFi
 #ifdef DEBUG
   DBG_OUTPUT_PORT.print("Open http://");
   DBG_OUTPUT_PORT.print(config.DeviceName);

@@ -19,6 +19,8 @@ Configuration is stored on SPIFFS too, in a JSON file. So, it recovers config du
 
 Implemented OTA Update with Arduino IDE.
 
+Web access can be protected with Basic HTTP Authentication.
+
 ####**There is no implemented security or authentication yet. Take this in account when connecting it to public networks or Internet.**
 
 ##WiFi connection
@@ -38,9 +40,9 @@ WiFi connection to router is confirmed via LED in pin 0 as soon an IP address is
 
 ##TODO
 
-- Network Authentication/Security
+- ~~HTTP Authentication~~ HTTP Basic authentication implemented. Will try to improve to a more secure mechanism.
 - OTA update via web interface
 - Configuration protection
-- HTTPS (in evaluation). *Not possible with ESP8266*
+- ~~HTTPS (in evaluation).~~ *Not possible with ESP8266*
 - Integration of editor in admin.html
 - Convert code to classes and try to design a library to add all this functionality easily

@@ -11,6 +11,7 @@
 
 strConfig config;
 strApConfig apConfig;
+strHTTPAuth httpAuth;
 
 
 // convert a single hex digit character to its integer value (from https://code.google.com/p/avr-netino/)
@@ -204,3 +205,99 @@ boolean save_config() {
 	return true;
 }
 
+boolean loadHTTPAuth() {
+	File configFile = SPIFFS.open("/secret.json", "r");
+	if (!configFile) {
+#ifdef DEBUG
+		DBG_OUTPUT_PORT.println("Failed to open secret file");
+#endif // DEBUG
+		return false;
+	}
+
+	size_t size = configFile.size();
+	if (size > 256) {
+#ifdef DEBUG
+		DBG_OUTPUT_PORT.println("Secret file size is too large");
+#endif
+		configFile.close();
+		return false;
+	}
+
+	// Allocate a buffer to store contents of the file.
+	std::unique_ptr<char[]> buf(new char[size]);
+
+	// We don't use String here because ArduinoJson library requires the input
+	// buffer to be mutable. If you don't use ArduinoJson, you may as well
+	// use configFile.readString instead.
+	configFile.readBytes(buf.get(), size);
+	configFile.close();
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.printf("JSON secret file size: %d %s\n", size, "bytes");
+#endif
+
+	StaticJsonBuffer<256> jsonBuffer;
+	JsonObject& json = jsonBuffer.parseObject(buf.get());
+
+	if (!json.success()) {
+#ifdef DEBUG
+		String temp;
+		json.prettyPrintTo(temp);
+		DBG_OUTPUT_PORT.println(temp);
+		DBG_OUTPUT_PORT.println("Failed to parse secret file");
+#endif // DEBUG
+		return false;
+	}
+#ifdef DEBUG
+	String temp;
+	json.prettyPrintTo(temp);
+	DBG_OUTPUT_PORT.println(temp);
+#endif
+	//memset(config.ssid, 0, 28);
+	//memset(config.pass, 0, 50);
+	//String("Virus_Detected!!!").toCharArray(config.ssid, 28); // Assign WiFi SSID
+	//String("LaJunglaSigloXX1@.").toCharArray(config.pass, 50); // Assign WiFi PASS
+
+	httpAuth.auth = json["auth"];
+	httpAuth.www_username = json["user"].asString();
+	httpAuth.www_password = json["pass"].asString();
+
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.println("Secret initialized.");
+	DBG_OUTPUT_PORT.print("User: "); DBG_OUTPUT_PORT.println(httpAuth.www_username);
+	DBG_OUTPUT_PORT.print("Pass: "); DBG_OUTPUT_PORT.println(httpAuth.www_password);
+	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+#endif // DEBUG
+	return true;
+}
+
+boolean saveHTTPAuth() {
+	//flag_config = false;
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.println("Save secret");
+#endif
+	StaticJsonBuffer<256> jsonBuffer;
+	JsonObject& json = jsonBuffer.createObject();
+	json["user"] = httpAuth.www_username;
+	json["pass"] = httpAuth.www_password;
+
+	//TODO add AP data to html
+	File configFile = SPIFFS.open("/secret.json", "w");
+	if (!configFile) {
+#ifdef DEBUG
+		DBG_OUTPUT_PORT.println("Failed to open secret file for writing");
+#endif // DEBUG
+		configFile.close();
+		return false;
+	}
+
+#ifdef DEBUG
+	String temp;
+	json.prettyPrintTo(temp);
+	Serial.println(temp);
+#endif
+
+	json.printTo(configFile);
+	configFile.flush();
+	configFile.close();
+	return true;
+}

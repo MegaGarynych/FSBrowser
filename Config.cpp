@@ -211,6 +211,8 @@ boolean loadHTTPAuth() {
 #ifdef DEBUG
 		DBG_OUTPUT_PORT.println("Failed to open secret file");
 #endif // DEBUG
+		httpAuth.auth = false;
+		configFile.close();
 		return false;
 	}
 
@@ -219,6 +221,7 @@ boolean loadHTTPAuth() {
 #ifdef DEBUG
 		DBG_OUTPUT_PORT.println("Secret file size is too large");
 #endif
+		httpAuth.auth = false;
 		configFile.close();
 		return false;
 	}
@@ -245,6 +248,7 @@ boolean loadHTTPAuth() {
 		DBG_OUTPUT_PORT.println(temp);
 		DBG_OUTPUT_PORT.println("Failed to parse secret file");
 #endif // DEBUG
+		httpAuth.auth = false;
 		return false;
 	}
 #ifdef DEBUG

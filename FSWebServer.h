@@ -18,8 +18,8 @@ extern ESP8266WebServer server;
 //holds the current upload
 extern File fsUploadFile;
 
-extern const char* www_username;
-extern const char* www_password;
+//extern const char* www_username;
+//extern const char* www_password;
 
 String formatBytes(size_t bytes);
 String getContentType(String filename);
@@ -29,6 +29,7 @@ void handleFileDelete();
 void handleFileCreate();
 void handleFileList();
 void serverInit();
+boolean checkAuth();
 
 #endif
 

@@ -41,16 +41,25 @@ typedef struct {
 	boolean APenable = false; // AP disabled by default
 } strApConfig;
 
+typedef struct {
+	boolean auth;
+	String www_username;
+	String www_password;
+} strHTTPAuth;
+
 extern strConfig config; // General and WiFi configuration
 extern strApConfig apConfig; // Static AP config settings
+extern strHTTPAuth httpAuth;
 
 unsigned char h2int(char c);
 
 void defaultConfig();
 
 boolean load_config();
-
 boolean save_config();
+
+boolean loadHTTPAuth();
+boolean saveHTTPAuth();
 
 
 #endif

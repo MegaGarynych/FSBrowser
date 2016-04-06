@@ -10,8 +10,8 @@
 ESP8266WebServer server(80);
 File fsUploadFile;
 
-const char* www_username = "admin";
-const char* www_password = "esp8266";
+//const char* www_username = "admin";
+//const char* www_password = "esp8266";
 
 //format bytes
 String formatBytes(size_t bytes) {
@@ -130,13 +130,17 @@ void handleFileList() {
 	String output = "[";
 	while (dir.next()) {
 		File entry = dir.openFile("r");
-		if (output != "[") output += ',';
-		bool isDir = false;
-		output += "{\"type\":\"";
-		output += (isDir) ? "dir" : "file";
-		output += "\",\"name\":\"";
-		output += String(entry.name()).substring(1);
-		output += "\"}";
+		if (true)//entry.name()!="secret.json") // Do not show secrets
+		{
+			if (output != "[")
+				output += ',';
+			bool isDir = false;
+			output += "{\"type\":\"";
+			output += (isDir) ? "dir" : "file";
+			output += "\",\"name\":\"";
+			output += String(entry.name()).substring(1);
+			output += "\"}";
+		}
 		entry.close();
 	}
 
@@ -149,26 +153,26 @@ void serverInit() {
 	//SERVER INIT
 	//list directory
 	server.on("/list", HTTP_GET, []() {
-		if (!server.authenticate(www_username, www_password))
+		if (!checkAuth())
 			return server.requestAuthentication();
 		handleFileList(); 
 	});
 	//load editor
 	server.on("/edit", HTTP_GET, []() {
-		if (!server.authenticate(www_username, www_password))
+		if (!checkAuth())
 			return server.requestAuthentication();
 		if (!handleFileRead("/edit.html")) 
 			server.send(404, "text/plain", "FileNotFound");
 	});
 	//create file
 	server.on("/edit", HTTP_PUT, []() {
-		if (!server.authenticate(www_username, www_password))
+		if (!checkAuth())
 			return server.requestAuthentication();
 		handleFileCreate();
 	});
 	//delete file
 	server.on("/edit", HTTP_DELETE, []() {
-		if (!server.authenticate(www_username, www_password))
+		if (!checkAuth())
 			return server.requestAuthentication();
 		handleFileDelete();
 	});
@@ -182,24 +186,24 @@ void serverInit() {
 	server.on("/admin/infovalues", send_information_values_html);
 	server.on("/admin/ntpvalues", send_NTP_configuration_values_html);
 	server.on("/config.html", []() {
-		if (!server.authenticate(www_username, www_password))
+		if (!checkAuth())
 			return server.requestAuthentication();
 		send_network_configuration_html();
 	});
 	server.on("/ntp.html", []() {
-		if (!server.authenticate(www_username, www_password))
+		if (!checkAuth())
 			return server.requestAuthentication();
 		send_NTP_configuration_html();
 	});
 	//server.on("/admin/devicename", send_devicename_value_html);
 	server.on("/admin", HTTP_GET, []() {
-		if (!server.authenticate(www_username, www_password))
+		if (!checkAuth())
 			return server.requestAuthentication();
 		if (!handleFileRead("/admin.html")) 
 			server.send(404, "text/plain", "FileNotFound");
 	});
 	server.on("/admin/restart", []() {
-		if (!server.authenticate(www_username, www_password))
+		if (!checkAuth())
 			return server.requestAuthentication();
 		restart_esp();
 	});
@@ -207,7 +211,7 @@ void serverInit() {
 	//called when the url is not defined here
 	//use it to load content from SPIFFS
 	server.onNotFound([]() {
-		if (!server.authenticate(www_username, www_password))
+		if (!checkAuth())
 			return server.requestAuthentication();
 		if (!handleFileRead(server.uri()))
 			server.send(404, "text/plain", "FileNotFound");
@@ -225,4 +229,15 @@ void serverInit() {
 	});
 	server.begin();
 	DBG_OUTPUT_PORT.println("HTTP server started");
+}
+
+boolean checkAuth() {
+	if (!httpAuth.auth) {
+		return true;
+	}
+	else
+	{
+		return server.authenticate(httpAuth.www_username.c_str(), httpAuth.www_password.c_str());
+	}
+	
 }

@@ -29,6 +29,10 @@ void send_NTP_configuration_html();
 
 void restart_esp();
 
+void send_wwwauth_configuration_values_html();
+
+void send_wwwauth_configuration_html();
+
 String GetMacAddress();
 
 void sendTimeData();

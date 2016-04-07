@@ -43,8 +43,8 @@ typedef struct {
 
 typedef struct {
 	boolean auth;
-	String www_username;
-	String www_password;
+	String wwwUsername;
+	String wwwPassword;
 } strHTTPAuth;
 
 extern strConfig config; // General and WiFi configuration

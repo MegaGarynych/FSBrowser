@@ -223,6 +223,11 @@ void serverInit() {
 			return server.requestAuthentication();
 		restart_esp();
 	});
+	server.on("/admin/wwwauth", []() {
+		if (!checkAuth())
+			return server.requestAuthentication();
+		send_wwwauth_configuration_values_html();
+	});
 
 	//called when the url is not defined here
 	//use it to load content from SPIFFS
@@ -256,7 +261,7 @@ boolean checkAuth() {
 	}
 	else
 	{
-		return server.authenticate(httpAuth.www_username.c_str(), httpAuth.www_password.c_str());
+		return server.authenticate(httpAuth.wwwUsername.c_str(), httpAuth.wwwPassword.c_str());
 	}
 	
 }

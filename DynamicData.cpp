@@ -283,6 +283,52 @@ void restart_esp() {
 	ESP.reset();
 }
 
+void send_wwwauth_configuration_values_html() {
+	String values = "";
+
+	values += "wwwauth|" + (String)(httpAuth.auth ? "checked" : "") + "|chk\n";
+	values += "wwwuser|" + (String)httpAuth.wwwUsername + "|input\n";
+	values += "wwwpass|" + (String)httpAuth.wwwPassword + "|input\n";
+	
+	server.send(200, "text/plain", values);
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.println(__FUNCTION__);
+#endif // DEBUG
+}
+
+void send_wwwauth_configuration_html()
+{
+	if (server.args() > 0)  // Save Settings
+	{
+		httpAuth.auth = false;
+		//String temp = "";
+		for (uint8_t i = 0; i < server.args(); i++) {
+			if (server.argName(i) == "wwwuser") {
+				httpAuth.wwwUsername = urldecode(server.arg(i));
+				continue;
+			}
+			if (server.argName(i) == "wwwpass") {
+				httpAuth.wwwPassword = urldecode(server.arg(i));
+				continue;
+			}
+			if (server.argName(i) == "wwwauth") {
+				httpAuth.auth = true;
+#ifdef DEBUG
+				DBG_OUTPUT_PORT.printf("HTTP Auth enabled\n");
+#endif // DEBUG
+				continue;
+			}
+		}
+
+		saveHTTPAuth();
+	}
+	handleFileRead("/system.html");
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+#endif // DEBUG
+
+}
+
 void sendTimeData() {
 	for (int i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++) {
 #ifdef DEBUG

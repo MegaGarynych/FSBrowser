@@ -262,13 +262,13 @@ boolean loadHTTPAuth() {
 	//String("LaJunglaSigloXX1@.").toCharArray(config.pass, 50); // Assign WiFi PASS
 
 	httpAuth.auth = json["auth"];
-	httpAuth.www_username = json["user"].asString();
-	httpAuth.www_password = json["pass"].asString();
+	httpAuth.wwwUsername = json["user"].asString();
+	httpAuth.wwwPassword = json["pass"].asString();
 
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.println("Secret initialized.");
-	DBG_OUTPUT_PORT.print("User: "); DBG_OUTPUT_PORT.println(httpAuth.www_username);
-	DBG_OUTPUT_PORT.print("Pass: "); DBG_OUTPUT_PORT.println(httpAuth.www_password);
+	DBG_OUTPUT_PORT.print("User: "); DBG_OUTPUT_PORT.println(httpAuth.wwwUsername);
+	DBG_OUTPUT_PORT.print("Pass: "); DBG_OUTPUT_PORT.println(httpAuth.wwwPassword);
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 #endif // DEBUG
 	return true;
@@ -281,8 +281,8 @@ boolean saveHTTPAuth() {
 #endif
 	StaticJsonBuffer<256> jsonBuffer;
 	JsonObject& json = jsonBuffer.createObject();
-	json["user"] = httpAuth.www_username;
-	json["pass"] = httpAuth.www_password;
+	json["user"] = httpAuth.wwwUsername;
+	json["pass"] = httpAuth.wwwPassword;
 
 	//TODO add AP data to html
 	File configFile = SPIFFS.open("/secret.json", "w");

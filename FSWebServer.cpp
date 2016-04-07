@@ -223,6 +223,11 @@ void serverInit() {
 			return server.requestAuthentication();
 		restart_esp();
 	});
+	server.on("/system.html", []() {
+		if (!checkAuth())
+			return server.requestAuthentication();
+		send_wwwauth_configuration_html();
+	});
 	server.on("/admin/wwwauth", []() {
 		if (!checkAuth())
 			return server.requestAuthentication();

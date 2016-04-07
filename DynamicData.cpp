@@ -298,6 +298,9 @@ void send_wwwauth_configuration_values_html() {
 
 void send_wwwauth_configuration_html()
 {
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.printf("%s %d\n",__FUNCTION__, server.args());
+#endif // DEBUG
 	if (server.args() > 0)  // Save Settings
 	{
 		httpAuth.auth = false;
@@ -305,10 +308,16 @@ void send_wwwauth_configuration_html()
 		for (uint8_t i = 0; i < server.args(); i++) {
 			if (server.argName(i) == "wwwuser") {
 				httpAuth.wwwUsername = urldecode(server.arg(i));
+#ifdef DEBUG
+				DBG_OUTPUT_PORT.printf("User: %s\n", httpAuth.wwwUsername.c_str());
+#endif // DEBUG
 				continue;
 			}
 			if (server.argName(i) == "wwwpass") {
 				httpAuth.wwwPassword = urldecode(server.arg(i));
+#ifdef DEBUG
+				DBG_OUTPUT_PORT.printf("Pass: %s\n", httpAuth.wwwPassword.c_str());
+#endif // DEBUG
 				continue;
 			}
 			if (server.argName(i) == "wwwauth") {

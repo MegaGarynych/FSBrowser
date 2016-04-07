@@ -281,6 +281,7 @@ boolean saveHTTPAuth() {
 #endif
 	StaticJsonBuffer<256> jsonBuffer;
 	JsonObject& json = jsonBuffer.createObject();
+	json["auth"] = httpAuth.auth;
 	json["user"] = httpAuth.wwwUsername;
 	json["pass"] = httpAuth.wwwPassword;
 

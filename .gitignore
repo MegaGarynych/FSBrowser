@@ -7,3 +7,4 @@ data/config.json
 *.sln
 *.filters
 dataorig/
+datagz/

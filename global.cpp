@@ -223,7 +223,7 @@ void ConfigureOTA() {
 	ArduinoOTA.setHostname(config.DeviceName.c_str());
 
 	// No authentication by default
-	ArduinoOTA.setPassword((const char *)"123");
+	//ArduinoOTA.setPassword((const char *)"123");
 
 	ArduinoOTA.onStart([]() {
 		DBG_OUTPUT_PORT.println("StartOTA \n");

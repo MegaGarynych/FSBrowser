@@ -51,7 +51,8 @@ bool handleFileRead(String path) {
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.println("handleFileRead: " + path);
 #endif // DEBUG
-	if (path.endsWith("/")) path += "index.htm";
+	if (path.endsWith("/"))
+		path += "index.htm";
 	String contentType = getContentType(path);
 	String pathWithGz = path + ".gz";
 	if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {

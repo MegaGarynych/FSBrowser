@@ -33,6 +33,7 @@ typedef struct {
 	long timezone;
 	boolean daylight;
 	String DeviceName;
+	//int connectionLed;
 } strConfig;
 
 typedef struct {

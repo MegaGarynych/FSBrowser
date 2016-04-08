@@ -20,7 +20,7 @@ ntpClient* ntp;
 long wifiDisconnectedSince = 0;
 wifiStatus currentWifiStatus = FIRST_RUN;
 WebSocketsServer wsServer = WebSocketsServer(81);
-
+extern strConfig config;
 
 
 void ConfigureWifi()
@@ -44,6 +44,7 @@ void ConfigureWifi()
 		);
 	}
 	delay(2000);
+	delay(5000); // Wait for WiFi
 
 
 	while (!WL_CONNECTED) {
@@ -171,6 +172,8 @@ void WiFiEvent(WiFiEvent_t event) {
 		case WIFI_EVENT_STAMODE_GOT_IP:
 			//DBG_OUTPUT_PORT.println(event);
 			digitalWrite(CONNECTION_LED, LOW); // Turn LED on
+			//DBG_OUTPUT_PORT.printf("Led %s on\n", CONNECTION_LED);
+			//turnLedOn();
 			wifiDisconnectedSince = 0;
 			currentWifiStatus = WIFI_STA_CONNECTED;
 			break;
@@ -179,7 +182,8 @@ void WiFiEvent(WiFiEvent_t event) {
 			DBG_OUTPUT_PORT.println("case STA_DISCONNECTED");
 #endif // DEBUG
 			digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
-			flashLED(CONNECTION_LED, 2, 100);
+			//DBG_OUTPUT_PORT.printf("Led %s off\n", CONNECTION_LED);
+			//flashLED(config.connectionLed, 2, 100);
 			if (currentWifiStatus == WIFI_STA_CONNECTED) {
 				currentWifiStatus == WIFI_STA_DISCONNECTED;
 				wifiDisconnectedSince = millis();

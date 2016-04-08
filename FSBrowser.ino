@@ -67,7 +67,6 @@ void setup(void){
   
   digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
   
-  WiFi.onEvent(WiFiEvent); // Register wifi Event to control connection LED
   
 						   //File System Init
   SPIFFS.begin();
@@ -90,6 +89,7 @@ void setup(void){
   loadHTTPAuth();
 
   //WIFI INIT
+  WiFi.onEvent(WiFiEvent); // Register wifi Event to control connection LED
   WiFi.hostname(config.DeviceName.c_str());
   if (apConfig.APenable) {
 	  ConfigureWifiAP(); // Set AP mode if AP button was pressed
@@ -97,7 +97,7 @@ void setup(void){
   else {
 	  ConfigureWifi(); // Set WiFi config
   }
-  delay(5000); // Wait for WiFi
+  
 #ifdef DEBUG
   DBG_OUTPUT_PORT.print("Open http://");
   DBG_OUTPUT_PORT.print(config.DeviceName);

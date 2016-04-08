@@ -43,6 +43,7 @@ void defaultConfig (){
 	config.timezone = 10;
 	config.daylight = true;
 	config.DeviceName = "ESP8266fs";
+	//config.connectionLed = CONNECTION_LED;
 	save_config();
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
@@ -132,11 +133,14 @@ boolean load_config() {
 	config.daylight = json["daylight"];
 	config.DeviceName = json["deviceName"].asString();
 
+	//config.connectionLed = json["led"];
+
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.println("Data initialized.");
 	DBG_OUTPUT_PORT.print("SSID: "); Serial.println(config.ssid);
 	DBG_OUTPUT_PORT.print("PASS: "); Serial.println(config.password);
 	DBG_OUTPUT_PORT.print("NTP Server: "); Serial.println(config.ntpServerName);
+	//DBG_OUTPUT_PORT.printf("Connection LED: %d\n", config.connectionLed);
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 #endif // DEBUG
 	return true;
@@ -182,6 +186,8 @@ boolean save_config() {
 	json["timeZone"] = config.timezone;
 	json["daylight"] = config.daylight;
 	json["deviceName"] = config.DeviceName;
+
+	//json["led"] = config.connectionLed;
 			
 	//TODO add AP data to html
 	File configFile = SPIFFS.open("/config.json", "w");

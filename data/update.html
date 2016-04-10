@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="style.css" type="text/css" />
+<script src="microajax.js"></script>
+<body>
+    <a href="admin.html" class="btn btn--s"><</a>&nbsp;&nbsp;<strong>Update Firmware</strong>
+    <hr>
+    <form method='POST' action='/update' enctype='multipart/form-data'>
+        <table>
+            <tr>
+                <td>
+                    <input type='file' name='update'>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type='submit' value='Update'>
+                </td>
+            </tr>
+            <tr>
+                <td id='remupd'>
+                    Checking if remote update is possible...
+                </td>
+            </tr>
+        </table>
+    </form>
+</body>
+  <script>
+        function GetState() {
+            //setValues("/admin/updatepossible");
+        }
+
+        window.onload = function () {
+            load("style.css", "css", function () {
+                load("microajax.js", "js", function () {
+                    GetState();
+                });
+            });
+            enableAuthFields(document.getElementById("wwwauth"));
+        }
+        function load(e, t, n) {
+            if ("js" == t) {
+                var a = document.createElement("script");
+                a.src = e,
+                a.type = "text/javascript",
+                a.async = !1,
+                a.onload = function () { n() },
+                document.getElementsByTagName("head")[0].appendChild(a)
+            } else if ("css" == t) {
+                var a = document.createElement("link");
+                a.href = e,
+                a.rel = "stylesheet",
+                a.type = "text/css",
+                a.async = !1,
+                a.onload = function () { n() },
+                document.getElementsByTagName("head")[0].appendChild(a)
+            }
+        }
+
+
+
+    </script>
+  </html>

@@ -8,7 +8,7 @@
 #include "Config.h"
 
 ESP8266WebServer server(80);
-ESP8266HTTPUpdateServer httpUpdater(true);
+//ESP8266HTTPUpdateServer httpUpdater(true);
 File fsUploadFile;
 
 //const char* www_username = "admin";
@@ -168,6 +168,53 @@ void handleFileList() {
 	server.send(200, "text/json", output);
 }
 
+void updateFirmware () {
+	// handler for the file upload, get's the sketch bytes, and writes
+	// them through the Update object
+	HTTPUpload& upload = server.upload();
+	if (upload.status == UPLOAD_FILE_START) {
+		WiFiUDP::stopAll();
+#ifdef DEBUG
+		DBG_OUTPUT_PORT.printf("Update: %s\n", upload.filename.c_str());
+#endif // DEBUG
+		uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+		if (!Update.begin(maxSketchSpace)) {//start with max available size
+#ifdef DEBUG
+			Update.printError(DBG_OUTPUT_PORT);
+#endif // DEBUG
+		}
+	}
+	else if (upload.status == UPLOAD_FILE_WRITE) {
+#ifdef DEBUG
+		DBG_OUTPUT_PORT.printf(".");
+#endif // DEBUG
+		if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+#ifdef DEBUG
+			Update.printError(DBG_OUTPUT_PORT);
+#endif // DEBUG
+		}
+	}
+	else if (upload.status == UPLOAD_FILE_END) {
+		if (Update.end(true)) { //true to set the size to the current progress
+#ifdef DEBUG
+			DBG_OUTPUT_PORT.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+#endif // DEBUG
+		}
+		else {
+#ifdef DEBUG
+			Update.printError(DBG_OUTPUT_PORT);
+#endif // DEBUG
+		}
+	}
+	else if (upload.status == UPLOAD_FILE_ABORTED) {
+		Update.end();
+#ifdef DEBUG
+		DBG_OUTPUT_PORT.println("Update was aborted");
+#endif // DEBUG
+	}
+	delay(1);
+}
+
 void serverInit() {
 	//SERVER INIT
 	//list directory
@@ -236,12 +283,28 @@ void serverInit() {
 			return server.requestAuthentication();
 		send_wwwauth_configuration_values_html();
 	});
+	server.on("/update", HTTP_GET, []() {
+		if (!checkAuth())
+			return server.requestAuthentication();
+		if (!handleFileRead("/update.html"))
+			server.send(404, "text/plain", "FileNotFound");
+	});
+	server.on("/update", HTTP_POST, [&]() {
+		if (!checkAuth())
+			return server.requestAuthentication();
+		server.sendHeader("Connection", "close");
+		server.sendHeader("Access-Control-Allow-Origin", "*");
+		server.send(200, "text/html", (Update.hasError()) ? "FAIL" : "<META http-equiv=\"refresh\" content=\"15;URL=/update\">OK");
+		ESP.restart();
+	}, updateFirmware);
 
 	//called when the url is not defined here
 	//use it to load content from SPIFFS
 	server.onNotFound([]() {
 		if (!checkAuth())
 			return server.requestAuthentication();
+		server.sendHeader("Connection", "close");
+		server.sendHeader("Access-Control-Allow-Origin", "*");
 		if (!handleFileRead(server.uri()))
 			server.send(404, "text/plain", "FileNotFound");
 	});
@@ -257,7 +320,7 @@ void serverInit() {
 		json = String();
 	});
 	server.begin();
-	httpUpdater.setup(&server);//,httpAuth.wwwUsername.c_str(),httpAuth.wwwPassword.c_str());
+	//httpUpdater.setup(&server,httpAuth.wwwUsername,httpAuth.wwwPassword);
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.println("HTTP server started");
 

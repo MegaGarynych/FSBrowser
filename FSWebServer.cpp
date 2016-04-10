@@ -8,7 +8,7 @@
 #include "Config.h"
 
 ESP8266WebServer server(80);
-ESP8266HTTPUpdateServer httpUpdater;
+ESP8266HTTPUpdateServer httpUpdater(true);
 File fsUploadFile;
 
 //const char* www_username = "admin";
@@ -257,7 +257,7 @@ void serverInit() {
 		json = String();
 	});
 	server.begin();
-	httpUpdater.setup(&server,httpAuth.wwwUsername.c_str(),httpAuth.wwwPassword.c_str());
+	httpUpdater.setup(&server);//,httpAuth.wwwUsername.c_str(),httpAuth.wwwPassword.c_str());
 #ifdef DEBUG
 	DBG_OUTPUT_PORT.println("HTTP server started");
 

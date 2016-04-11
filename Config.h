@@ -52,14 +52,40 @@ extern strConfig config; // General and WiFi configuration
 extern strApConfig apConfig; // Static AP config settings
 extern strHTTPAuth httpAuth;
 
+/**
+* converts a single hex digit character to its integer value
+* @param[in] hex character
+* @param[out] number that represents hex digit
+*/
 unsigned char h2int(char c);
 
+/**
+* Loads default system configuration
+*/
 void defaultConfig();
 
+/**
+* Loads system configuration from SPIFFS file
+* @param[out] true if OK
+*/
 boolean load_config();
+
+/**
+* Saves system configuration to SPIFFS file
+* @param[out] true if OK
+*/
 boolean save_config();
 
+/**
+* Loads HTTP secret from SPIFFS file
+* @param[out] true if OK
+*/
 boolean loadHTTPAuth();
+
+/**
+* Saves HTTP secret to SPIFFS file
+* @param[out] true if OK
+*/
 boolean saveHTTPAuth();
 
 

@@ -28,28 +28,65 @@ typedef enum {
 
 
 extern Ticker secondTk; // Second - Timer to do periodic tasks
-extern boolean secondFlag;
-extern ntpClient* ntp;
+extern boolean secondFlag; // Flag to activate periodic task
+extern ntpClient* ntp; // NtpClient instance
 
-extern long wifiDisconnectedSince;
+extern long wifiDisconnectedSince; // When disconnected, time since this situation has happened
 
 extern wifiStatus currentWifiStatus;
 
-extern WebSocketsServer wsServer;
+extern WebSocketsServer wsServer; // Socket server to send dynamic data to web browser
 
-extern boolean ledOn;
-extern boolean ledOff;
-
-
+/**
+* Sets WiFi configuration as config struct
+*/
 void ConfigureWifi();
+
+/**
+* Sets WiFi AP
+*/
 void ConfigureWifiAP();
+
+/**
+* Periodically sets seconfFlag to run secondTask
+*/
 void secondTick();
+
+/**
+* Periodic task to send time data to Web Socket
+*/
 void secondTask();
+
+/**
+* Gets arguments from an URL string
+* @param[in] String with URL to decode.
+* @param[out] Pointer to ntpClient instance
+*/
 String urldecode(String input);
+
+/**
+* Checks number is in 0-255 range
+*/
 boolean checkRange(String Value);
+
+/**
+* Runs on every WiFi event (connection, disconnection)
+*/
 void WiFiEvent(WiFiEvent_t event);
+
+/**
+* Makes a LED flash n-times
+*/
 void flashLED(int pin, int times, int delayTime);
+
+/**
+* Slowly turn a LED on
+*/
 void dimLEDon(int pin, int range);
+
+/**
+* Sets and start OTA configuration
+*/
 void ConfigureOTA();
 
 #endif

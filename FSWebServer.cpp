@@ -308,7 +308,7 @@ void serverInit() {
 
 	//called when the url is not defined here
 	//use it to load content from SPIFFS
-	server.onNotFound( &[]() {
+	server.onNotFound( []() {
 		if (!checkAuth())
 			return server.requestAuthentication();
 		server.sendHeader("Connection", "close");
@@ -318,7 +318,7 @@ void serverInit() {
 	});
 
 	//get heap status, analog input value and all GPIO statuses in one json call
-	server.on("/all", HTTP_GET, &[]() {
+	server.on("/all", HTTP_GET, []() {
 		String json = "{";
 		json += "\"heap\":" + String(ESP.getFreeHeap());
 		json += ", \"analog\":" + String(analogRead(A0));

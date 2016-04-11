@@ -40,6 +40,7 @@
 #include <FS.h>
 #include <Ticker.h>
 #include <ArduinoOTA.h>
+#include <StreamString.h>
 
 #define DBG_OUTPUT_PORT Serial
 

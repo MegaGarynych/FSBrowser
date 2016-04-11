@@ -178,6 +178,9 @@ void updateFirmware () {
 		DBG_OUTPUT_PORT.printf("Update: %s\n", upload.filename.c_str());
 #endif // DEBUG
 		uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+#ifdef DEBUG
+		DBG_OUTPUT_PORT.printf("Max free scketch space: %d\n", maxSketchSpace);
+#endif // DEBUG
 		if (!Update.begin(maxSketchSpace)) {//start with max available size
 #ifdef DEBUG
 			Update.printError(DBG_OUTPUT_PORT);
@@ -282,6 +285,11 @@ void serverInit() {
 		if (!checkAuth())
 			return server.requestAuthentication();
 		send_wwwauth_configuration_values_html();
+	});
+	server.on("/admin/updatepossible", []() {
+		if (!checkAuth())
+			return server.requestAuthentication();
+		send_update_firmware_values_html();
 	});
 	server.on("/update", HTTP_GET, []() {
 		if (!checkAuth())

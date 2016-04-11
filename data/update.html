@@ -10,26 +10,39 @@
         <table>
             <tr>
                 <td>
-                    <input type='file' name='update'>
+                    <input id="fileName" type='file' name='update' disabled>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <input type='submit' value='Update'>
+                    <input id="updateButton" type='submit' value='Update' disabled>
                 </td>
             </tr>
             <tr>
-                <td id='remupd'>
-                    Checking if remote update is possible...
+                <td>
+                    Checking if remote update is possible... <span id="remupd"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span id="remupdResult"></span>
                 </td>
             </tr>
         </table>
     </form>
 </body>
   <script>
-        function GetState() {
-            //setValues("/admin/updatepossible");
-        }
+      function GetState() {
+          setValues("/admin/updatepossible")
+          setTimeout(function () {
+              if (document.getElementById("remupd").innerHTML == "OK") {
+                  console.warn("ERROR = OK");
+                  document.getElementById("fileName").disabled = false;
+                  document.getElementById("updateButton").disabled = false;
+                  document.getElementById("remupdResult").innerHTML = "";
+              }
+          },2000);
+      }
 
         window.onload = function () {
             load("style.css", "css", function () {
@@ -37,8 +50,10 @@
                     GetState();
                 });
             });
-            enableAuthFields(document.getElementById("wwwauth"));
         }
+
+      document.getElementById("remupd").on
+
         function load(e, t, n) {
             if ("js" == t) {
                 var a = document.createElement("script");
@@ -61,4 +76,3 @@
 
 
     </script>
-  </html>

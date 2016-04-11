@@ -8,6 +8,7 @@
 #include "Config.h"
 #include "FSWebServer.h"
 #include <NtpClientLib.h>
+#include <StreamString.h>
 
 //extern strDateTime DateTime;
 extern ntpClient* ntp;
@@ -336,6 +337,28 @@ void send_wwwauth_configuration_html()
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 #endif // DEBUG
 
+}
+
+void send_update_firmware_values_html() {
+	
+
+	String values = "";
+	bool error = Update.hasError();
+	DBG_OUTPUT_PORT.printf("--Update error = %d\n", error);
+	values += "remupd|" + (String)((error == UPDATE_ERROR_OK) ? "OK" : "ERROR") + "|div\n";
+	if (Update.hasError() != UPDATE_ERROR_OK) {
+		StreamString result;
+		Update.printError(result);
+		values += "remupdResult|" + (String)result + "|div\n";
+	}
+	else {
+		values += "remupdResult||div\n";
+	}
+	
+	server.send(200, "text/plain", values);
+#ifdef DEBUG
+	DBG_OUTPUT_PORT.println(__FUNCTION__);
+#endif // DEBUG
 }
 
 void sendTimeData() {

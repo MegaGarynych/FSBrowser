@@ -33,6 +33,8 @@ void send_wwwauth_configuration_values_html();
 
 void send_wwwauth_configuration_html();
 
+void send_update_firmware_values_html();
+
 String GetMacAddress();
 
 void sendTimeData();

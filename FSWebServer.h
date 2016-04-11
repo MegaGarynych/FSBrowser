@@ -28,11 +28,36 @@ extern File fsUploadFile;
 //extern const char* www_password;
 
 String formatBytes(size_t bytes);
+
+/**
+* Gets content type from filename extension
+* @param[in] File name with extension
+* @param[out] MIME content type
+*/
 String getContentType(String filename);
+
+/**
+* Gets a file from SPIFFS and streams it to web browser
+* @param[in] File name
+* @param[out] true if file exists
+*/
 bool handleFileRead(String path);
+
+/**
+* Manages file upload from web browser
+*/
 void handleFileUpload();
+
+/**
+* Manages file deletion of a SPIFFS file, triggered from web browser
+*/
 void handleFileDelete();
+
+/**
+* Manages file creation of a SPIFFS file, triggered from web browser
+*/
 void handleFileCreate();
+
 void handleFileList();
 void serverInit();
 void updateFirmware();

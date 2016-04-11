@@ -51,7 +51,7 @@ void defaultConfig (){
 }
 
 boolean load_config() {
-	File configFile = SPIFFS.open("/config.json", "r");
+	File configFile = SPIFFS.open(CONFIG_FILE, "r");
 	if (!configFile) {
 #ifdef DEBUG
 		DBG_OUTPUT_PORT.println("Failed to open config file");
@@ -190,7 +190,7 @@ boolean save_config() {
 	//json["led"] = config.connectionLed;
 			
 	//TODO add AP data to html
-	File configFile = SPIFFS.open("/config.json", "w");
+	File configFile = SPIFFS.open(CONFIG_FILE, "w");
 	if (!configFile) {
 #ifdef DEBUG
 		DBG_OUTPUT_PORT.println("Failed to open config file for writing");
@@ -212,7 +212,7 @@ boolean save_config() {
 }
 
 boolean loadHTTPAuth() {
-	File configFile = SPIFFS.open("/secret.json", "r");
+	File configFile = SPIFFS.open(SECRET_FILE, "r");
 	if (!configFile) {
 #ifdef DEBUG
 		DBG_OUTPUT_PORT.println("Failed to open secret file");
@@ -292,7 +292,7 @@ boolean saveHTTPAuth() {
 	json["pass"] = httpAuth.wwwPassword;
 
 	//TODO add AP data to html
-	File configFile = SPIFFS.open("/secret.json", "w");
+	File configFile = SPIFFS.open(SECRET_FILE, "w");
 	if (!configFile) {
 #ifdef DEBUG
 		DBG_OUTPUT_PORT.println("Failed to open secret file for writing");

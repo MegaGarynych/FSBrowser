@@ -46,4 +46,4 @@ WiFi connection to router is confirmed via LED on IO pin #0 as soon an IP addres
 - ~~Configuration protection~~
 - ~~HTTPS (in evaluation).~~ *Not possible with ESP8266*
 - ~~Integration of editor in admin.html~~
-- Convert code to classes and try to design a library to add all this functionality easily. *Evaluating it this is worth*
+- Convert code to classes and try to design a library to add all this functionality easily. *Evaluating if this is worth*

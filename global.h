@@ -19,6 +19,9 @@
 #define DEBUG_GLOBALH
 #endif // DEBUG
 
+#define CONFIG_FILE "/config.json"
+#define SECRET_FILE "/secret.json"
+
 typedef enum {
 	FIRST_RUN = 0,
 	WIFI_STA_CONNECTED,

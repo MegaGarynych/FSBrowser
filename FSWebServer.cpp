@@ -52,7 +52,7 @@ bool handleFileRead(String path) {
 #ifdef DEBUG_WEBSERVER
 	DBG_OUTPUT_PORT.println("handleFileRead: " + path);
 #endif // DEBUG_WEBSERVER
-	flashLED(CONNECTION_LED, 1, 25);
+	flashLED(CONNECTION_LED, 1, 25); // Show activity on LED
 	if (path.endsWith("/"))
 		path += "index.htm";
 	String contentType = getContentType(path);
@@ -315,6 +315,22 @@ void serverInit() {
 		server.sendHeader("Access-Control-Allow-Origin", "*");
 		if (!handleFileRead(server.uri()))
 			server.send(404, "text/plain", "FileNotFound");
+	});
+
+	server.on(SECRET_FILE, HTTP_GET, []() {
+		if (!checkAuth())
+			return server.requestAuthentication();
+		server.sendHeader("Connection", "close");
+		server.sendHeader("Access-Control-Allow-Origin", "*");
+		server.send(403, "text/plain", "Forbidden");
+	});
+
+	server.on(CONFIG_FILE, HTTP_GET, []() {
+		if (!checkAuth())
+			return server.requestAuthentication();
+		server.sendHeader("Connection", "close");
+		server.sendHeader("Access-Control-Allow-Origin", "*");
+		server.send(403, "text/plain", "Forbidden");
 	});
 
 	//get heap status, analog input value and all GPIO statuses in one json call

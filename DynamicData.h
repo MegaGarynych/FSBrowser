@@ -3,13 +3,20 @@
 #ifndef _DYNAMICDATA_h
 #define _DYNAMICDATA_h
 
+#include "Config.h"
+#include "global.h"
+
+#ifdef DEBUG
+#define DEBUG_DYNAMICDATA
+#endif // DEBUG
+
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
 #else
 	#include "WProgram.h"
 #endif
 
-#include "global.h"
+
 
 // ------------------ Web dynamic data methods -------------------------------- //
 

@@ -3,6 +3,10 @@
 #ifndef _FSWEBSERVER_h
 #define _FSWEBSERVER_h
 
+#ifdef DEBUG
+#define DEBUG_WEBSERVER
+#endif // DEBUG
+
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
 #else

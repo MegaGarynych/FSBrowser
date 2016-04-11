@@ -13,9 +13,9 @@
 //extern strDateTime DateTime;
 extern ntpClient* ntp;
 
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 int wsNumber = 0;
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 
 const char Page_WaitAndReload[] PROGMEM = R"=====(
 <meta http-equiv="refresh" content="5; URL=config.html">
@@ -32,9 +32,9 @@ void send_general_configuration_values_html()
 	String values = "";
 	values += "devicename|" + (String)config.DeviceName + "|input\n";
 	server.send(200, "text/plain", values);
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 }
 
 //
@@ -95,9 +95,9 @@ void send_connection_state_values_html()
 	values += "connectionstate|" + state + "|div\n";
 	values += "networks|" + Networks + "|div\n";
 	server.send(200, "text/plain", values);
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
-#endif
+#endif // DEBUG_DYNAMICDATA
 
 }
 
@@ -131,9 +131,9 @@ void send_network_configuration_values_html()
 	values += "dhcp|" + (String)(config.dhcp ? "checked" : "") + "|chk\n";
 	
 	server.send(200, "text/plain", values);
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 }
 
 //
@@ -156,9 +156,9 @@ void send_information_values_html()
 	values += "x_ntp_date|" + ntp->getDateStr() + "|div\n";
 	
 	server.send(200, "text/plain", values);
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 
 }
 
@@ -180,25 +180,25 @@ void send_NTP_configuration_values_html()
 	values += "tz|" + (String)config.timezone + "|input\n";
 	values += "dst|" + (String)(config.daylight ? "checked" : "") + "|chk\n";
 	server.send(200, "text/plain", values);
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 
 }
 
 void send_network_configuration_html()
 {
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
-#endif
+#endif // DEBUG_DYNAMICDATA
 	if (server.args() > 0)  // Save Settings
 	{
 		//String temp = "";
 		config.dhcp = false;
 		for (uint8_t i = 0; i < server.args(); i++) {
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, server.arg(i).c_str());
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 			if (server.argName(i) == "ssid") { config.ssid = urldecode(server.arg(i));	continue; }
 			if (server.argName(i) == "password") {	config.password = urldecode(server.arg(i)); continue; }
 			if (server.argName(i) == "ip_0") {	if (checkRange(server.arg(i))) 	config.IP[0] = server.arg(i).toInt(); continue;	}
@@ -230,9 +230,9 @@ void send_network_configuration_html()
 		handleFileRead("/config.html");
 		//server.send(200, "text/html", PAGE_NetworkConfiguration);
 	}
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 }
 
 void send_NTP_configuration_html()
@@ -259,7 +259,9 @@ void send_NTP_configuration_html()
 			}
 			if (server.argName(i) == "dst") {
 				config.daylight = true;
+#ifdef DEBUG_DYNAMICDATA
 				DBG_OUTPUT_PORT.printf("Daylight Saving: %d\n", config.daylight);
+#endif // DEBUG_DYNAMICDATA
 				continue;
 			}
 		}
@@ -272,9 +274,9 @@ void send_NTP_configuration_html()
 	}
 	handleFileRead("/ntp.html");
 	//server.send(200, "text/html", PAGE_NTPConfiguration);
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 
 }
 
@@ -292,16 +294,16 @@ void send_wwwauth_configuration_values_html() {
 	values += "wwwpass|" + (String)httpAuth.wwwPassword + "|input\n";
 	
 	server.send(200, "text/plain", values);
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 }
 
 void send_wwwauth_configuration_html()
 {
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.printf("%s %d\n",__FUNCTION__, server.args());
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 	if (server.args() > 0)  // Save Settings
 	{
 		httpAuth.auth = false;
@@ -309,23 +311,23 @@ void send_wwwauth_configuration_html()
 		for (uint8_t i = 0; i < server.args(); i++) {
 			if (server.argName(i) == "wwwuser") {
 				httpAuth.wwwUsername = urldecode(server.arg(i));
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 				DBG_OUTPUT_PORT.printf("User: %s\n", httpAuth.wwwUsername.c_str());
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 				continue;
 			}
 			if (server.argName(i) == "wwwpass") {
 				httpAuth.wwwPassword = urldecode(server.arg(i));
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 				DBG_OUTPUT_PORT.printf("Pass: %s\n", httpAuth.wwwPassword.c_str());
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 				continue;
 			}
 			if (server.argName(i) == "wwwauth") {
 				httpAuth.auth = true;
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 				DBG_OUTPUT_PORT.printf("HTTP Auth enabled\n");
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 				continue;
 			}
 		}
@@ -333,9 +335,9 @@ void send_wwwauth_configuration_html()
 		saveHTTPAuth();
 	}
 	handleFileRead("/system.html");
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 
 }
 
@@ -344,7 +346,9 @@ void send_update_firmware_values_html() {
 
 	String values = "";
 	bool error = Update.hasError();
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.printf("--Update error = %d\n", error);
+#endif // DEBUG_DYNAMICDATA
 	values += "remupd|" + (String)((error == UPDATE_ERROR_OK) ? "OK" : "ERROR") + "|div\n";
 	if (Update.hasError() != UPDATE_ERROR_OK) {
 		StreamString result;
@@ -356,16 +360,16 @@ void send_update_firmware_values_html() {
 	}
 	
 	server.send(200, "text/plain", values);
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 }
 
 void sendTimeData() {
 	for (int i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++) {
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 		//DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 		String time = "T" + ntp->getTimeStr();
 		wsServer.sendTXT(i, time);
 		String date = "D" + ntp->getDateStr();
@@ -379,26 +383,26 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 
 	switch (type) {
 	case WStype_DISCONNECTED:
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 		DBG_OUTPUT_PORT.printf("[%u] Disconnected!\n", num);
-#endif
+#endif // DEBUG_DYNAMICDATA
 		break;
 	case WStype_CONNECTED:
 	{
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 		wsNumber = num;
 		IPAddress ip = wsServer.remoteIP(num);
 		DBG_OUTPUT_PORT.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 
 		// send message to client
 		//wsServer.sendTXT(num, "Connected");
 	}
 	break;
 	case WStype_TEXT:
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 		DBG_OUTPUT_PORT.printf("[%u] get Text: %s\n", num, payload);
-#endif
+#endif // DEBUG_DYNAMICDATA
 		// send message to client
 		// webSocket.sendTXT(num, "message here");
 
@@ -406,9 +410,9 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 		// webSocket.broadcastTXT("message here");
 		break;
 	case WStype_BIN:
-#ifdef DEBUG
+#ifdef DEBUG_DYNAMICDATA
 		DBG_OUTPUT_PORT.printf("[%u] get binary lenght: %u\n", num, lenght);
-#endif // DEBUG
+#endif // DEBUG_DYNAMICDATA
 		hexdump(payload, lenght);
 
 		// send message to client

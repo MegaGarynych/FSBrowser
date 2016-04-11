@@ -49,9 +49,9 @@ String getContentType(String filename) {
 }
 
 bool handleFileRead(String path) {
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 	DBG_OUTPUT_PORT.println("handleFileRead: " + path);
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 	flashLED(CONNECTION_LED, 1, 25);
 	if (path.endsWith("/"))
 		path += "index.htm";
@@ -66,10 +66,10 @@ bool handleFileRead(String path) {
 		file.close();
 		return true;
 	}
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 	else
 		DBG_OUTPUT_PORT.printf("Cannot find %s\n", path.c_str());
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 	return false;
 }
 
@@ -79,9 +79,9 @@ void handleFileUpload() {
 	if (upload.status == UPLOAD_FILE_START) {
 		String filename = upload.filename;
 		if (!filename.startsWith("/")) filename = "/" + filename;
-#ifdef DEBUG
-		DBG_OUTPUT_PORT.print("handleFileUpload Name: "); DBG_OUTPUT_PORT.println(filename);
-#endif // DEBUG
+#ifdef DEBUG_WEBSERVER
+		DBG_OUTPUT_PORT.printf("handleFileUpload Name: %s\n", filename.c_str());
+#endif // DEBUG_WEBSERVER
 		fsUploadFile = SPIFFS.open(filename, "w");
 		filename = String();
 	}
@@ -93,18 +93,18 @@ void handleFileUpload() {
 	else if (upload.status == UPLOAD_FILE_END) {
 		if (fsUploadFile)
 			fsUploadFile.close();
-#ifdef DEBUG
-		DBG_OUTPUT_PORT.print("handleFileUpload Size: "); DBG_OUTPUT_PORT.println(upload.totalSize);
-#endif // DEBUG
+#ifdef DEBUG_WEBSERVER
+		DBG_OUTPUT_PORT.printf("handleFileUpload Size: %u\n", upload.totalSize);
+#endif // DEBUG_WEBSERVER
 	}
 }
 
 void handleFileDelete() {
 	if (server.args() == 0) return server.send(500, "text/plain", "BAD ARGS");
 	String path = server.arg(0);
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 	DBG_OUTPUT_PORT.println("handleFileDelete: " + path);
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 	if (path == "/")
 		return server.send(500, "text/plain", "BAD PATH");
 	if (!SPIFFS.exists(path))
@@ -118,9 +118,9 @@ void handleFileCreate() {
 	if (server.args() == 0)
 		return server.send(500, "text/plain", "BAD ARGS");
 	String path = server.arg(0);
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 	DBG_OUTPUT_PORT.println("handleFileCreate: " + path);
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 	if (path == "/")
 		return server.send(500, "text/plain", "BAD PATH");
 	if (SPIFFS.exists(path))
@@ -138,9 +138,9 @@ void handleFileList() {
 	if (!server.hasArg("dir")) { server.send(500, "text/plain", "BAD ARGS"); return; }
 
 	String path = server.arg("dir");
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 	DBG_OUTPUT_PORT.println("handleFileList: " + path);
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 	Dir dir = SPIFFS.openDir(path);
 	path = String();
 
@@ -162,9 +162,9 @@ void handleFileList() {
 	}
 
 	output += "]";
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 	DBG_OUTPUT_PORT.println(output);
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 	server.send(200, "text/json", output);
 }
 
@@ -174,46 +174,46 @@ void updateFirmware () {
 	HTTPUpload& upload = server.upload();
 	if (upload.status == UPLOAD_FILE_START) {
 		WiFiUDP::stopAll();
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 		DBG_OUTPUT_PORT.printf("Update: %s\n", upload.filename.c_str());
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 		uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-#ifdef DEBUG
-		DBG_OUTPUT_PORT.printf("Max free scketch space: %d\n", maxSketchSpace);
-#endif // DEBUG
+#ifdef DEBUG_WEBSERVER
+		DBG_OUTPUT_PORT.printf("Max free scketch space: %u\n", maxSketchSpace);
+#endif // DEBUG_WEBSERVER
 		if (!Update.begin(maxSketchSpace)) {//start with max available size
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 			Update.printError(DBG_OUTPUT_PORT);
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 		}
 	}
 	else if (upload.status == UPLOAD_FILE_WRITE) {
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 		DBG_OUTPUT_PORT.printf(".");
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 		if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 			Update.printError(DBG_OUTPUT_PORT);
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 		}
 	}
 	else if (upload.status == UPLOAD_FILE_END) {
 		if (Update.end(true)) { //true to set the size to the current progress
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 			DBG_OUTPUT_PORT.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 		}
 		else {
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 			Update.printError(DBG_OUTPUT_PORT);
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 		}
 	}
 	else if (upload.status == UPLOAD_FILE_ABORTED) {
 		Update.end();
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 		DBG_OUTPUT_PORT.println("Update was aborted");
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 	}
 	delay(1);
 }
@@ -308,7 +308,7 @@ void serverInit() {
 
 	//called when the url is not defined here
 	//use it to load content from SPIFFS
-	server.onNotFound([]() {
+	server.onNotFound( &[]() {
 		if (!checkAuth())
 			return server.requestAuthentication();
 		server.sendHeader("Connection", "close");
@@ -318,7 +318,7 @@ void serverInit() {
 	});
 
 	//get heap status, analog input value and all GPIO statuses in one json call
-	server.on("/all", HTTP_GET, []() {
+	server.on("/all", HTTP_GET, &[]() {
 		String json = "{";
 		json += "\"heap\":" + String(ESP.getFreeHeap());
 		json += ", \"analog\":" + String(analogRead(A0));
@@ -329,10 +329,9 @@ void serverInit() {
 	});
 	server.begin();
 	//httpUpdater.setup(&server,httpAuth.wwwUsername,httpAuth.wwwPassword);
-#ifdef DEBUG
+#ifdef DEBUG_WEBSERVER
 	DBG_OUTPUT_PORT.println("HTTP server started");
-
-#endif // DEBUG
+#endif // DEBUG_WEBSERVER
 }
 
 boolean checkAuth() {

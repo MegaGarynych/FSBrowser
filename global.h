@@ -13,6 +13,11 @@
 #include <NtpClientLib.h>
 #include <WebSocketsServer.h>
 #include <WebSockets.h>
+#include "Config.h"
+
+#ifdef DEBUG
+#define DEBUG_GLOBALH
+#endif // DEBUG
 
 typedef enum {
 	FIRST_RUN = 0,

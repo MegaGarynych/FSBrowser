@@ -27,15 +27,15 @@ void ConfigureWifi()
 {
 	WiFi.mode(WIFI_STA);
 	currentWifiStatus = WIFI_STA_DISCONNECTED;
-#ifdef DEBUG
+#ifdef DEBUG_GLOBALH
 	DBG_OUTPUT_PORT.printf("Connecting to %s\n", config.ssid.c_str());
-#endif // DEBUG
+#endif // DEBUG_GLOBALH
 	WiFi.begin(config.ssid.c_str(), config.password.c_str());
 	if (!config.dhcp)
 	{
-#ifdef DEBUG
+#ifdef DEBUG_GLOBALH
 		DBG_OUTPUT_PORT.println("NO DHCP");
-#endif // DEBUG
+#endif // DEBUG_GLOBALH
 		WiFi.config(
 			IPAddress(config.IP[0], config.IP[1], config.IP[2], config.IP[3]), 
 			IPAddress(config.Gateway[0], config.Gateway[1], config.Gateway[2], config.Gateway[3]), 
@@ -55,19 +55,18 @@ void ConfigureWifi()
 		currentWifiStatus = WIFI_STA_CONNECTED;
 	}
 
-#ifdef DEBUG
+#ifdef DEBUG_GLOBALH
 	DBG_OUTPUT_PORT.printf("IP Address: %s\n", WiFi.localIP().toString().c_str());
 	DBG_OUTPUT_PORT.printf("Gateway:    %s\n", WiFi.gatewayIP().toString().c_str());
 	DBG_OUTPUT_PORT.printf("DNS:        %s\n", WiFi.dnsIP().toString().c_str());
 	Serial.println(__PRETTY_FUNCTION__);
-
-#endif // DEBUG
+#endif // DEBUG_GLOBALH
 }
 
 void ConfigureWifiAP() {
-#ifdef DEBUG
+#ifdef DEBUG_GLOBALH
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
-#endif // DEBUG
+#endif // DEBUG_GLOBALH
 	//WiFi.disconnect();
 	WiFi.mode(WIFI_AP);
 	String APname = apConfig.APssid + (String)ESP.getChipId();
@@ -79,29 +78,12 @@ void ConfigureWifiAP() {
 void secondTick()
 {
 	secondFlag = true;
-	/*strDateTime tempDateTime;
-	AdminTimeOutCounter++;
-	cNTP_Update++;
-	UnixTimestamp++;
-	ConvertUnixTimeStamp(UnixTimestamp + (config.timezone * 360), &tempDateTime);
-	if (config.daylight) // Sommerzeit beachten
-		if (summertime(tempDateTime.year, tempDateTime.month, tempDateTime.day, tempDateTime.hour, 0))
-		{
-			ConvertUnixTimeStamp(UnixTimestamp + (config.timezone * 360) + 3600, &DateTime);
-		}
-		else
-		{
-			DateTime = tempDateTime;
-		}
-	else
-	{
-		DateTime = tempDateTime;
-	}
-	Refresh = true;*/
 }
 
 void secondTask() {
+#ifdef DEBUG_GLOBALH
 	//DBG_OUTPUT_PORT.println(ntp->getTimeString());
+#endif // DEBUG_GLOBALH
 	sendTimeData();
 }
 
@@ -178,9 +160,9 @@ void WiFiEvent(WiFiEvent_t event) {
 			currentWifiStatus = WIFI_STA_CONNECTED;
 			break;
 		case WIFI_EVENT_STAMODE_DISCONNECTED:
-#ifdef DEBUG
+#ifdef DEBUG_GLOBALH
 			DBG_OUTPUT_PORT.println("case STA_DISCONNECTED");
-#endif // DEBUG
+#endif // DEBUG_GLOBALH
 			digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
 			//DBG_OUTPUT_PORT.printf("Led %s off\n", CONNECTION_LED);
 			//flashLED(config.connectionLed, 2, 100);
@@ -188,9 +170,9 @@ void WiFiEvent(WiFiEvent_t event) {
 				currentWifiStatus == WIFI_STA_DISCONNECTED;
 				wifiDisconnectedSince = millis();
 			}
-#ifdef DEBUG
+#ifdef DEBUG_GLOBALH
 			DBG_OUTPUT_PORT.printf("Disconnected for %d seconds\n", (int)((millis() - wifiDisconnectedSince) / 1000));
-#endif // DEBUG
+#endif // DEBUG_GLOBALH
 	}
 }
 
@@ -223,8 +205,9 @@ void ConfigureOTA() {
 	ArduinoOTA.setHostname(config.DeviceName.c_str());
 
 	// No authentication by default
-	//ArduinoOTA.setPassword((const char *)"123");
+	ArduinoOTA.setPassword((const char *)"123");
 
+#ifdef DEBUG_GLOBALH
 	ArduinoOTA.onStart([]() {
 		DBG_OUTPUT_PORT.println("StartOTA \n");
 	});
@@ -242,6 +225,7 @@ void ConfigureOTA() {
 		else if (error == OTA_RECEIVE_ERROR) DBG_OUTPUT_PORT.println("Receive Failed");
 		else if (error == OTA_END_ERROR) DBG_OUTPUT_PORT.println("End Failed");
 	});
-	ArduinoOTA.begin();
 	DBG_OUTPUT_PORT.println("\nOTA Ready");
+#endif // DEBUG_GLOBALH
+	ArduinoOTA.begin();
 }

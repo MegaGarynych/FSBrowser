@@ -72,7 +72,9 @@ void ConfigureWifiAP() {
 	String APname = apConfig.APssid + (String)ESP.getChipId();
 	//APname += (String)ESP.getChipId();
 	WiFi.softAP(APname.c_str(), apConfig.APpassword.c_str());
-	flashLED(CONNECTION_LED, 3, 250);
+	if (CONNECTION_LED >= 0) {
+		flashLED(CONNECTION_LED, 3, 250);
+	}
 }
 
 void secondTick()
@@ -153,7 +155,9 @@ void WiFiEvent(WiFiEvent_t event) {
 	switch (event) {
 		case WIFI_EVENT_STAMODE_GOT_IP:
 			//DBG_OUTPUT_PORT.println(event);
-			digitalWrite(CONNECTION_LED, LOW); // Turn LED on
+			if (CONNECTION_LED >= 0) {
+				digitalWrite(CONNECTION_LED, LOW); // Turn LED on
+			}
 			//DBG_OUTPUT_PORT.printf("Led %s on\n", CONNECTION_LED);
 			//turnLedOn();
 			wifiDisconnectedSince = 0;
@@ -163,7 +167,9 @@ void WiFiEvent(WiFiEvent_t event) {
 #ifdef DEBUG_GLOBALH
 			DBG_OUTPUT_PORT.println("case STA_DISCONNECTED");
 #endif // DEBUG_GLOBALH
-			digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
+			if (CONNECTION_LED >= 0) {
+				digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
+			}
 			//DBG_OUTPUT_PORT.printf("Led %s off\n", CONNECTION_LED);
 			//flashLED(config.connectionLed, 2, 100);
 			if (currentWifiStatus == WIFI_STA_CONNECTED) {
@@ -192,7 +198,9 @@ void dimLEDon(int pin, int range) {
 	analogWriteRange(range);
 
 	for (int i = range; i > 0; i--) {
-		analogWrite(CONNECTION_LED, i);
+		if (CONNECTION_LED >= 0) {
+			analogWrite(CONNECTION_LED, i);
+		}
 		delay(10);
 	}
 }

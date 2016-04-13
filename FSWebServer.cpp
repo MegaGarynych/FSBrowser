@@ -52,7 +52,9 @@ bool handleFileRead(String path) {
 #ifdef DEBUG_WEBSERVER
 	DBG_OUTPUT_PORT.println("handleFileRead: " + path);
 #endif // DEBUG_WEBSERVER
-	flashLED(CONNECTION_LED, 1, 25); // Show activity on LED
+	if (CONNECTION_LED >= 0) {
+		flashLED(CONNECTION_LED, 1, 25); // Show activity on LED
+	}
 	if (path.endsWith("/"))
 		path += "index.htm";
 	String contentType = getContentType(path);

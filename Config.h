@@ -11,9 +11,11 @@
 	#include "WProgram.h"
 #endif
 
+
 //#define CONNECTION_LED 0 // Connection LED pin (External)
-#define CONNECTION_LED 2 // Connection LED pin (Built in)
-#define AP_ENABLE_BUTTON 4 // Button pin to enable AP during startup for configuration
+
+#define CONNECTION_LED -1 // Connection LED pin (Built in)
+#define AP_ENABLE_BUTTON -1 // Button pin to enable AP during startup for configuration
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>

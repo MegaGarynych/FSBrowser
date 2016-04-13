@@ -15,9 +15,9 @@
 #include <WebSockets.h>
 #include "Config.h"
 
-#ifdef DEBUG
+//#ifdef DEBUG
 #define DEBUG_GLOBALH
-#endif // DEBUG
+//#endif // DEBUG
 
 #define CONFIG_FILE "/config.json"
 #define SECRET_FILE "/secret.json"

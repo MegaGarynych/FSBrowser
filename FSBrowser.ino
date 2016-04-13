@@ -54,22 +54,27 @@ void setup(void){
 #ifdef DEBUG
   DBG_OUTPUT_PORT.setDebugOutput(true);
 #endif // DEBUG
-  pinMode(CONNECTION_LED, OUTPUT); // CONNECTION_LED pin defined as output
-  pinMode(AP_ENABLE_BUTTON, INPUT); // If this pin is HIGH during startup ESP will run in AP_ONLY mode. Backdoor to change WiFi settings when configured WiFi is not available.
-  
+  if (CONNECTION_LED >= 0) {
+	  pinMode(CONNECTION_LED, OUTPUT); // CONNECTION_LED pin defined as output
+  }
+  if (AP_ENABLE_BUTTON >= 0) {
+	  pinMode(AP_ENABLE_BUTTON, INPUT); // If this pin is HIGH during startup ESP will run in AP_ONLY mode. Backdoor to change WiFi settings when configured WiFi is not available.
+  }
   //analogWriteFreq(200);
   
   secondTk.attach( 1 , secondTick); // Task to run periodic things every second
   
-  apConfig.APenable = digitalRead(AP_ENABLE_BUTTON); // Read AP button
+  if (AP_ENABLE_BUTTON >= 0) {
+	  apConfig.APenable = digitalRead(AP_ENABLE_BUTTON); // Read AP button
 #ifdef DEBUG
-  DBG_OUTPUT_PORT.printf("AP Enable = %d\n", apConfig.APenable);
+	  DBG_OUTPUT_PORT.printf("AP Enable = %d\n", apConfig.APenable);
 #endif // DEBUG
+  }
+  if (CONNECTION_LED >= 0) {
+	  digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
+  }
   
-  digitalWrite(CONNECTION_LED, HIGH); // Turn LED off
-  
-  
-						   //File System Init
+  //File System Init
   SPIFFS.begin();
 #ifdef DEBUG
   { // List files
@@ -92,8 +97,13 @@ void setup(void){
   //WIFI INIT
   WiFi.onEvent(WiFiEvent); // Register wifi Event to control connection LED
   WiFi.hostname(config.DeviceName.c_str());
-  if (apConfig.APenable) {
-	  ConfigureWifiAP(); // Set AP mode if AP button was pressed
+  if (AP_ENABLE_BUTTON >= 0) {
+	  if (apConfig.APenable) {
+		  ConfigureWifiAP(); // Set AP mode if AP button was pressed
+	  }
+	  else {
+		  ConfigureWifi(); // Set WiFi config
+	  }
   }
   else {
 	  ConfigureWifi(); // Set WiFi config
@@ -103,6 +113,7 @@ void setup(void){
   DBG_OUTPUT_PORT.print("Open http://");
   DBG_OUTPUT_PORT.print(config.DeviceName);
   DBG_OUTPUT_PORT.println(".local/edit to see the file browser");
+  DBG_OUTPUT_PORT.printf("Flash chip size: %u\n", ESP.getFlashChipRealSize());
 #endif
   // NTP client setup
   ntp = ntpClient::getInstance(config.ntpServerName, config.timezone/10 , config.daylight);

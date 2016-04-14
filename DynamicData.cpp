@@ -345,15 +345,22 @@ void send_update_firmware_values_html() {
 	
 
 	String values = "";
-	bool error = Update.hasError();
+	uint32_t maxSketchSpace = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
+	bool updateOK = Update.begin(maxSketchSpace);
+	StreamString result;
+	Update.printError(result);
 #ifdef DEBUG_DYNAMICDATA
-	DBG_OUTPUT_PORT.printf("--Update error = %d\n", error);
+	DBG_OUTPUT_PORT.printf("--MaxSketchSpace: %d\n", maxSketchSpace);
+	DBG_OUTPUT_PORT.printf("--Update error = %s\n", result.c_str());
 #endif // DEBUG_DYNAMICDATA
-	values += "remupd|" + (String)((error == UPDATE_ERROR_OK) ? "OK" : "ERROR") + "|div\n";
-	if (Update.hasError() != UPDATE_ERROR_OK) {
-		StreamString result;
-		Update.printError(result);
-		values += "remupdResult|" + (String)result + "|div\n";
+	values += "remupd|" + (String)((updateOK) ? "OK" : "ERROR") + "|div\n";
+	
+	if (Update.hasError()) {
+		//StreamString result;
+		//Update.printError(result);
+		result.trim();
+		values += "remupdResult|" + result + "|div\n";
+
 	}
 	else {
 		values += "remupdResult||div\n";

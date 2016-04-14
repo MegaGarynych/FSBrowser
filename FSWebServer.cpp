@@ -179,7 +179,7 @@ void updateFirmware () {
 #ifdef DEBUG_WEBSERVER
 		DBG_OUTPUT_PORT.printf("Update: %s\n", upload.filename.c_str());
 #endif // DEBUG_WEBSERVER
-		uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+		uint32_t maxSketchSpace = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
 #ifdef DEBUG_WEBSERVER
 		DBG_OUTPUT_PORT.printf("Max free scketch space: %u\n", maxSketchSpace);
 #endif // DEBUG_WEBSERVER

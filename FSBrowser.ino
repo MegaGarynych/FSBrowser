@@ -114,6 +114,8 @@ void setup(void){
   DBG_OUTPUT_PORT.print(config.DeviceName);
   DBG_OUTPUT_PORT.println(".local/edit to see the file browser");
   DBG_OUTPUT_PORT.printf("Flash chip size: %u\n", ESP.getFlashChipRealSize());
+  DBG_OUTPUT_PORT.printf("Scketch size: %u\n", ESP.getSketchSize());
+  DBG_OUTPUT_PORT.printf("Free flash space: %u\n", ESP.getFreeSketchSpace());
 #endif
   // NTP client setup
   ntp = ntpClient::getInstance(config.ntpServerName, config.timezone/10 , config.daylight);

@@ -13,6 +13,9 @@
 	#include "WProgram.h"
 #endif
 
+//#define HIDE_SECRET // Uncomment to avoid HTTP secret file downloading
+#define HIDE_CONFIG // Uncomment to avoid HTTP config file downloading
+
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>

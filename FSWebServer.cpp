@@ -171,6 +171,20 @@ void handleFileList() {
 }
 
 void updateFirmware () {
+	String browserHash = "";
+
+	if (server.args() > 0)  // Read hash
+	{
+		//String temp = "";
+		
+		for (uint8_t i = 0; i < server.args(); i++) {
+#ifdef DEBUG_WEBSERVER
+			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, server.arg(i).c_str());
+#endif // DEBUG_WEBSERVER
+			if (server.argName(i) == "clientHash") { browserHash = urldecode(server.arg(i));	continue; }
+		}
+		//server.send(200, "text/html", Page_WaitAndReload);
+	}
 	// handler for the file upload, get's the sketch bytes, and writes
 	// them through the Update object
 	HTTPUpload& upload = server.upload();
@@ -183,6 +197,12 @@ void updateFirmware () {
 #ifdef DEBUG_WEBSERVER
 		DBG_OUTPUT_PORT.printf("Max free scketch space: %u\n", maxSketchSpace);
 #endif // DEBUG_WEBSERVER
+		if (browserHash != "") {
+			Update.setMD5(browserHash.c_str());
+#ifdef DEBUG_WEBSERVER
+			DBG_OUTPUT_PORT.printf("Hash from client: %s\n", browserHash.c_str());
+#endif // DEBUG_WEBSERVER
+		}
 		if (!Update.begin(maxSketchSpace)) {//start with max available size
 #ifdef DEBUG_WEBSERVER
 			Update.printError(DBG_OUTPUT_PORT);
@@ -200,6 +220,10 @@ void updateFirmware () {
 		}
 	}
 	else if (upload.status == UPLOAD_FILE_END) {
+		String updateHash = Update.md5String();
+#ifdef DEBUG_WEBSERVER
+		DBG_OUTPUT_PORT.printf("Upload finished. Calculated MD5: %s",updateHash.c_str());
+#endif // DEBUG_WEBSERVER
 		if (Update.end(true)) { //true to set the size to the current progress
 #ifdef DEBUG_WEBSERVER
 			DBG_OUTPUT_PORT.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
@@ -319,6 +343,7 @@ void serverInit() {
 			server.send(404, "text/plain", "FileNotFound");
 	});
 
+#ifndef HIDE_SECRET
 	server.on(SECRET_FILE, HTTP_GET, []() {
 		if (!checkAuth())
 			return server.requestAuthentication();
@@ -326,7 +351,9 @@ void serverInit() {
 		server.sendHeader("Access-Control-Allow-Origin", "*");
 		server.send(403, "text/plain", "Forbidden");
 	});
+#endif // HIDE_SECRET
 
+#ifndef HIDE_CONFIG
 	server.on(CONFIG_FILE, HTTP_GET, []() {
 		if (!checkAuth())
 			return server.requestAuthentication();
@@ -334,6 +361,7 @@ void serverInit() {
 		server.sendHeader("Access-Control-Allow-Origin", "*");
 		server.send(403, "text/plain", "Forbidden");
 	});
+#endif // HIDE_CONFIG
 
 	//get heap status, analog input value and all GPIO statuses in one json call
 	server.on("/all", HTTP_GET, []() {

@@ -131,7 +131,7 @@ void setup(void){
 
   
 
-  ConfigureOTA();
+  ConfigureOTA(httpAuth.wwwPassword.c_str());
 
   //MDNS.begin(config.DeviceName.c_str()); // I've not got this to work. Need some investigation.
   MDNS.addService("http", "tcp", 80);

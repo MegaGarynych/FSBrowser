@@ -10,6 +10,7 @@
 ESP8266WebServer server(80);
 //ESP8266HTTPUpdateServer httpUpdater(true);
 File fsUploadFile;
+String browserMD5="";
 
 //const char* www_username = "admin";
 //const char* www_password = "esp8266";
@@ -170,21 +171,26 @@ void handleFileList() {
 	server.send(200, "text/json", output);
 }
 
-void updateFirmware () {
-	String browserHash = "";
-
+void setUpdateMD5() {
+	browserMD5 = "";
+#ifdef DEBUG_WEBSERVER
+	DBG_OUTPUT_PORT.printf("Arg number: %d\n", server.args());
+#endif // DEBUG_WEBSERVER
 	if (server.args() > 0)  // Read hash
 	{
 		//String temp = "";
-		
 		for (uint8_t i = 0; i < server.args(); i++) {
 #ifdef DEBUG_WEBSERVER
-			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, server.arg(i).c_str());
+			DBG_OUTPUT_PORT.printf("Arg %s: %s\n", server.argName(i).c_str, server.arg(i).c_str());
 #endif // DEBUG_WEBSERVER
-			if (server.argName(i) == "clientHash") { browserHash = urldecode(server.arg(i));	continue; }
+			if (server.argName(i) == "md5") { browserMD5 = urldecode(server.arg(i));	continue; }
 		}
-		//server.send(200, "text/html", Page_WaitAndReload);
+		server.send(200, "text/html", "OK");
 	}
+
+}
+
+void updateFirmware () {
 	// handler for the file upload, get's the sketch bytes, and writes
 	// them through the Update object
 	HTTPUpload& upload = server.upload();
@@ -197,10 +203,10 @@ void updateFirmware () {
 #ifdef DEBUG_WEBSERVER
 		DBG_OUTPUT_PORT.printf("Max free scketch space: %u\n", maxSketchSpace);
 #endif // DEBUG_WEBSERVER
-		if (browserHash != "") {
-			Update.setMD5(browserHash.c_str());
+		if (browserMD5 != "") {
+			Update.setMD5(browserMD5.c_str());
 #ifdef DEBUG_WEBSERVER
-			DBG_OUTPUT_PORT.printf("Hash from client: %s\n", browserHash.c_str());
+			DBG_OUTPUT_PORT.printf("Hash from client: %s\n", browserMD5.c_str());
 #endif // DEBUG_WEBSERVER
 		}
 		if (!Update.begin(maxSketchSpace)) {//start with max available size
@@ -241,7 +247,7 @@ void updateFirmware () {
 		DBG_OUTPUT_PORT.println("Update was aborted");
 #endif // DEBUG_WEBSERVER
 	}
-	delay(1);
+	delay(2);
 }
 
 void serverInit() {
@@ -312,10 +318,16 @@ void serverInit() {
 			return server.requestAuthentication();
 		send_wwwauth_configuration_values_html();
 	});
-	server.on("/admin/updatepossible", []() {
+	server.on("/update/updatepossible", []() {
 		if (!checkAuth())
 			return server.requestAuthentication();
 		send_update_firmware_values_html();
+	});
+	server.on("/setmd5", []() {
+		DBG_OUTPUT_PORT.println("md5?");
+		/*if (!checkAuth())
+			return server.requestAuthentication();*/
+		setUpdateMD5();
 	});
 	server.on("/update", HTTP_GET, []() {
 		if (!checkAuth())

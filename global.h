@@ -16,7 +16,7 @@
 #include "Config.h"
 
 //#ifdef DEBUG
-#define DEBUG_GLOBALH
+//#define DEBUG_GLOBALH
 //#endif // DEBUG
 
 #define CONFIG_FILE "/config.json"
@@ -89,8 +89,9 @@ void dimLEDon(int pin, int range);
 
 /**
 * Sets and start OTA configuration
+* @param[in] Password for OTA
 */
-void ConfigureOTA();
+void ConfigureOTA(String password="");
 
 #endif
 

@@ -4,13 +4,14 @@
 
 #define DBG_OUTPUT_PORT Serial
 
+//#define DEBUG_DYNAMICDATA
+
 #include "DynamicData.h"
 #include "Config.h"
 #include "FSWebServer.h"
 #include <NtpClientLib.h>
 #include <StreamString.h>
 
-//extern strDateTime DateTime;
 extern ntpClient* ntp;
 
 #ifdef DEBUG_DYNAMICDATA
@@ -342,11 +343,10 @@ void send_wwwauth_configuration_html()
 }
 
 void send_update_firmware_values_html() {
-	
-
 	String values = "";
 	uint32_t maxSketchSpace = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
-	bool updateOK = Update.begin(maxSketchSpace);
+	//bool updateOK = Update.begin(maxSketchSpace);
+	bool updateOK = maxSketchSpace < ESP.getFreeSketchSpace();
 	StreamString result;
 	Update.printError(result);
 #ifdef DEBUG_DYNAMICDATA
@@ -356,11 +356,8 @@ void send_update_firmware_values_html() {
 	values += "remupd|" + (String)((updateOK) ? "OK" : "ERROR") + "|div\n";
 	
 	if (Update.hasError()) {
-		//StreamString result;
-		//Update.printError(result);
 		result.trim();
 		values += "remupdResult|" + result + "|div\n";
-
 	}
 	else {
 		values += "remupdResult||div\n";

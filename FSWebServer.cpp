@@ -3,17 +3,15 @@
 // 
 #define DBG_OUTPUT_PORT Serial
 
+#define DEBUG_WEBSERVER
+
 #include "FSWebServer.h"
 #include "DynamicData.h"
 #include "Config.h"
 
 ESP8266WebServer server(80);
-//ESP8266HTTPUpdateServer httpUpdater(true);
 File fsUploadFile;
 String browserMD5="";
-
-//const char* www_username = "admin";
-//const char* www_password = "esp8266";
 
 //format bytes
 String formatBytes(size_t bytes) {
@@ -323,10 +321,10 @@ void serverInit() {
 			return server.requestAuthentication();
 		send_update_firmware_values_html();
 	});
-	server.on("/setmd5", []() {
+	server.on("/setmd5", [&]() {
+		if (!checkAuth())
+			return server.requestAuthentication();
 		DBG_OUTPUT_PORT.println("md5?");
-		/*if (!checkAuth())
-			return server.requestAuthentication();*/
 		setUpdateMD5();
 	});
 	server.on("/update", HTTP_GET, []() {

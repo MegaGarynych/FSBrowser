@@ -6,10 +6,6 @@
 #include "Config.h"
 #include "global.h"
 
-#ifdef DEBUG
-#define DEBUG_DYNAMICDATA
-#endif // DEBUG
-
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
 #else

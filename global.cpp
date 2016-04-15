@@ -205,7 +205,7 @@ void dimLEDon(int pin, int range) {
 	}
 }
 
-void ConfigureOTA() {
+void ConfigureOTA(String password) {
 	// Port defaults to 8266
 	// ArduinoOTA.setPort(8266);
 
@@ -213,7 +213,12 @@ void ConfigureOTA() {
 	ArduinoOTA.setHostname(config.DeviceName.c_str());
 
 	// No authentication by default
-	ArduinoOTA.setPassword((const char *)"123");
+	if (password!="") {
+		ArduinoOTA.setPassword(password.c_str());
+#ifdef DEBUG_GLOBALH
+		DBG_OUTPUT_PORT.printf("OTA password set %s\n", password.c_str());
+#endif // DEBUG_GLOBALH
+	}
 
 #ifdef DEBUG_GLOBALH
 	ArduinoOTA.onStart([]() {

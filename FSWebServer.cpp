@@ -179,7 +179,7 @@ void setUpdateMD5() {
 		//String temp = "";
 		for (uint8_t i = 0; i < server.args(); i++) {
 #ifdef DEBUG_WEBSERVER
-			DBG_OUTPUT_PORT.printf("Arg %s: %s\n", server.argName(i).c_str, server.arg(i).c_str());
+			DBG_OUTPUT_PORT.printf("Arg %s: %s\n", server.argName(i).c_str(), server.arg(i).c_str());
 #endif // DEBUG_WEBSERVER
 			if (server.argName(i) == "md5") { browserMD5 = urldecode(server.arg(i));	continue; }
 		}

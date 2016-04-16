@@ -218,6 +218,8 @@ boolean loadHTTPAuth() {
 		DBG_OUTPUT_PORT.println("Failed to open secret file");
 #endif // DEBUG
 		httpAuth.auth = false;
+		httpAuth.wwwUsername = "";
+		httpAuth.wwwPassword = "";
 		configFile.close();
 		return false;
 	}

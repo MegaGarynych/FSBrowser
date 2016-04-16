@@ -55,8 +55,8 @@ void ConfigureWifi()
 		currentWifiStatus = WIFI_STA_CONNECTED;
 	}
 
-#ifdef DEBUG_GLOBALH
 	DBG_OUTPUT_PORT.printf("IP Address: %s\n", WiFi.localIP().toString().c_str());
+#ifdef DEBUG_GLOBALH
 	DBG_OUTPUT_PORT.printf("Gateway:    %s\n", WiFi.gatewayIP().toString().c_str());
 	DBG_OUTPUT_PORT.printf("DNS:        %s\n", WiFi.dnsIP().toString().c_str());
 	Serial.println(__PRETTY_FUNCTION__);
@@ -71,7 +71,11 @@ void ConfigureWifiAP() {
 	WiFi.mode(WIFI_AP);
 	String APname = apConfig.APssid + (String)ESP.getChipId();
 	//APname += (String)ESP.getChipId();
-	WiFi.softAP(APname.c_str(), apConfig.APpassword.c_str());
+	//WiFi.softAP(APname.c_str(), apConfig.APpassword.c_str());
+	if (httpAuth.wwwPassword != "")
+		WiFi.softAP(APname.c_str(), httpAuth.wwwPassword.c_str());
+	else
+		WiFi.softAP(APname.c_str());
 	if (CONNECTION_LED >= 0) {
 		flashLED(CONNECTION_LED, 3, 250);
 	}

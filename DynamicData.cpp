@@ -200,6 +200,7 @@ void send_network_configuration_html()
 #ifdef DEBUG_DYNAMICDATA
 			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, server.arg(i).c_str());
 #endif // DEBUG_DYNAMICDATA
+			if (server.argName(i) == "devicename") { config.DeviceName = urldecode(server.arg(i));	continue; }
 			if (server.argName(i) == "ssid") { config.ssid = urldecode(server.arg(i));	continue; }
 			if (server.argName(i) == "password") {	config.password = urldecode(server.arg(i)); continue; }
 			if (server.argName(i) == "ip_0") {	if (checkRange(server.arg(i))) 	config.IP[0] = server.arg(i).toInt(); continue;	}
@@ -222,14 +223,14 @@ void send_network_configuration_html()
 		}
 		server.send(200, "text/html", Page_WaitAndReload);
 		save_config();
-		ConfigureWifi();
+		ESP.restart();
+		//ConfigureWifi();
 		//AdminTimeOutCounter = 0;
-
 	}
 	else
 	{
+		DBG_OUTPUT_PORT.println(server.uri());
 		handleFileRead("/config.html");
-		//server.send(200, "text/html", PAGE_NetworkConfiguration);
 	}
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);

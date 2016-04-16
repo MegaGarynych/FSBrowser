@@ -289,6 +289,11 @@ void serverInit() {
 			return server.requestAuthentication();
 		send_network_configuration_html();
 	});
+	server.on("/general.html", []() {
+		if (!checkAuth())
+			return server.requestAuthentication();
+		send_network_configuration_html();
+	});
 	server.on("/ntp.html", []() {
 		if (!checkAuth())
 			return server.requestAuthentication();

@@ -91,6 +91,7 @@ void setup(void){
   
   if (!load_config()) { // Try to load configuration from SPIFFS
 	  defaultConfig(); // Load defaults if any error
+	  apConfig.APenable = true;
   }
   loadHTTPAuth();
 

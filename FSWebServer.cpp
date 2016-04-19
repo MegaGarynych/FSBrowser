@@ -181,9 +181,13 @@ void setUpdateMD5() {
 #ifdef DEBUG_WEBSERVER
 			DBG_OUTPUT_PORT.printf("Arg %s: %s\n", server.argName(i).c_str(), server.arg(i).c_str());
 #endif // DEBUG_WEBSERVER
-			if (server.argName(i) == "md5") { browserMD5 = urldecode(server.arg(i));	continue; }
+			if (server.argName(i) == "md5") { 
+				browserMD5 = urldecode(server.arg(i));
+				Update.setMD5(browserMD5.c_str());
+				continue;
+			}
 		}
-		server.send(200, "text/html", "OK");
+		server.send(200, "text/html", "OK --> MD5: "+browserMD5);
 	}
 
 }
@@ -201,7 +205,7 @@ void updateFirmware () {
 #ifdef DEBUG_WEBSERVER
 		DBG_OUTPUT_PORT.printf("Max free scketch space: %u\n", maxSketchSpace);
 #endif // DEBUG_WEBSERVER
-		if (browserMD5 != "") {
+		if (browserMD5!= NULL && browserMD5 != "") {
 			Update.setMD5(browserMD5.c_str());
 #ifdef DEBUG_WEBSERVER
 			DBG_OUTPUT_PORT.printf("Hash from client: %s\n", browserMD5.c_str());
@@ -215,7 +219,7 @@ void updateFirmware () {
 	}
 	else if (upload.status == UPLOAD_FILE_WRITE) {
 #ifdef DEBUG_WEBSERVER
-		DBG_OUTPUT_PORT.printf(".");
+		DBG_OUTPUT_PORT.print(".");
 #endif // DEBUG_WEBSERVER
 		if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
 #ifdef DEBUG_WEBSERVER
@@ -224,17 +228,18 @@ void updateFirmware () {
 		}
 	}
 	else if (upload.status == UPLOAD_FILE_END) {
-		String updateHash = Update.md5String();
-#ifdef DEBUG_WEBSERVER
-		DBG_OUTPUT_PORT.printf("Upload finished. Calculated MD5: %s",updateHash.c_str());
-#endif // DEBUG_WEBSERVER
+		String updateHash;
 		if (Update.end(true)) { //true to set the size to the current progress
 #ifdef DEBUG_WEBSERVER
+			updateHash = Update.md5String();
+			DBG_OUTPUT_PORT.printf("Upload finished. Calculated MD5: %s\n", updateHash.c_str());
 			DBG_OUTPUT_PORT.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
 #endif // DEBUG_WEBSERVER
 		}
 		else {
 #ifdef DEBUG_WEBSERVER
+			updateHash = Update.md5String();
+			DBG_OUTPUT_PORT.printf("Upload failed. Calculated MD5: %s\n", updateHash.c_str());
 			Update.printError(DBG_OUTPUT_PORT);
 #endif // DEBUG_WEBSERVER
 		}
@@ -245,7 +250,7 @@ void updateFirmware () {
 		DBG_OUTPUT_PORT.println("Update was aborted");
 #endif // DEBUG_WEBSERVER
 	}
-	delay(2);
+	delay(4);
 }
 
 void serverInit() {

@@ -182,6 +182,9 @@
         var mkfile = document.createElement("button");
         mkfile.innerHTML = 'MkFile';
         document.getElementById(element).appendChild(mkfile);
+		var savefile = document.createElement("button");
+        savefile.innerHTML = 'Save';
+        document.getElementById(element).appendChild(savefile);
   
         function httpPostProcessRequest(){
           if (xmlHttp.readyState == 4){
@@ -200,6 +203,9 @@
           xmlHttp.send(formData);
         }
         
+        savefile.onclick = function (e) {
+          httpPost(file, editor.getValue()+"", type);
+        };
         mkfile.onclick = function(e){
           if(path.value.indexOf(".") === -1) return;
           createPath(path.value);
@@ -662,7 +668,7 @@
         createFileUploader("uploader", tree, editor);
       };
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>
   </head>
   <body onload="onBodyLoad();">
     <div id="uploader"></div>

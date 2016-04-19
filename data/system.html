@@ -6,24 +6,22 @@
 <a href="admin.html"  class="btn btn--s"><</a>&nbsp;&nbsp;<strong>System Settings</strong>
 	<hr>
 	<form>
-	  <table border="0"  cellspacing="0" cellpadding="3" style="width:310px" >
+	  <table border="0"  cellspacing="0" cellpadding="3" style="width:350px" >
 	    <tr>
-	      <td colspan="2" align="center">
+	      <td align="center">
 			    <a href="/edit" class="btn btn--m btn--blue">FS Editor</a>
 		    </td>
-		    <td colspan="2" align="center">
+		    <td align="center">
 			    <a href="javascript:restartESP()" class="btn btn--m btn--blue">Restart</a>
 		    </td>
 	    </tr>
+        <tr>
+            <td colspan="2" align="center">
+                <a href="/update" class="btn btn--m btn--blue" style="width:150px">OTA Update</a>
+            </td>
+        </tr>
     </table>
   </form>
-  <table border="0" cellspacing="0" cellpadding="3" style="width:350px">
-      <tr>
-          <td colspan="2" align="center">
-              <a href="/update" class="btn btn--m btn--blue" style="width:150px">OTA Update</a>
-          </td>
-      </tr>
-  </table>
   <hr />
   <form id="wwwAuthForm" action="" method="get">
       <table border="0" cellspacing="0" cellpadding="3" style="width:350px">
@@ -44,6 +42,9 @@
               <td>
                   <input type="password" id="wwwpass" name="wwwpass" value="">
               </td>
+          </tr>
+          <tr>
+              <td align="left" colspan="2">Notice password is used for<br/>HTTP Auth, AP Mode and OTA</td>
           </tr>
           <tr>
               <td colspan="2" align="center">

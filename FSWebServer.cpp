@@ -201,9 +201,12 @@ void updateFirmware () {
 #ifdef DEBUG_WEBSERVER
 		DBG_OUTPUT_PORT.printf("Update: %s\n", upload.filename.c_str());
 #endif // DEBUG_WEBSERVER
-		uint32_t maxSketchSpace = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
+		//uint32_t maxSketchSpace = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
+		uint32_t maxSketchSpace = ESP.getSketchSize();
 #ifdef DEBUG_WEBSERVER
+		uint32_t oldValue = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
 		DBG_OUTPUT_PORT.printf("Max free scketch space: %u\n", maxSketchSpace);
+		DBG_OUTPUT_PORT.printf("Old value: %u\n", oldValue);
 #endif // DEBUG_WEBSERVER
 		if (browserMD5!= NULL && browserMD5 != "") {
 			Update.setMD5(browserMD5.c_str());
@@ -250,7 +253,7 @@ void updateFirmware () {
 		DBG_OUTPUT_PORT.println("Update was aborted");
 #endif // DEBUG_WEBSERVER
 	}
-	delay(4);
+	delay(2);
 }
 
 void serverInit() {

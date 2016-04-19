@@ -50,7 +50,7 @@
 
 void setup(void){
   DBG_OUTPUT_PORT.begin(115200);
-  DBG_OUTPUT_PORT.print("\n");
+  DBG_OUTPUT_PORT.print("\n\n");
 #ifdef DEBUG
   DBG_OUTPUT_PORT.setDebugOutput(true);
 #endif // DEBUG

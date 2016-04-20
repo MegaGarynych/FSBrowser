@@ -99,13 +99,13 @@
                 if (file.size != e.target.result.length) {
                     console.error('ERROR:Browser reported success but could not read the file until the end');
                 } else {
-                    md5hash = SparkMD5.hashBinary(e.target.result)
+                    md5hash = SparkMD5.hashBinary(e.target.result);
                     console.info('Finished loading!');
                     console.info('Computed hash: ' + md5hash); // compute hash
                     console.info('Total time: ' + (new Date().getTime() - time) + 'ms');
                     document.getElementById('md5row').hidden = false;
                     document.getElementById('clientHash').innerHTML = md5hash;
-                    setValues("/update/setmd5?md5=" + md5hash);
+                    setValues('/setmd5?md5=' + md5hash + '&size=' + file.size);
                 }
             };
             fileReader.onerror = function () {

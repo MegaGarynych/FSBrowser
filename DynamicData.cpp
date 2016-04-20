@@ -19,14 +19,14 @@ int wsNumber = 0;
 #endif // DEBUG_DYNAMICDATA
 
 const char Page_WaitAndReload[] PROGMEM = R"=====(
-<meta http-equiv="refresh" content="5; URL=config.html">
+<meta http-equiv="refresh" content="10; URL=/config.html">
 Please Wait....Configuring and Restarting.
 )=====";
 
-/*const char Page_Restart[] PROGMEM = R"=====(
-<meta http-equiv="refresh" content="5; URL=system.html">
+const char Page_Restart[] PROGMEM = R"=====(
+<meta http-equiv="refresh" content="10; URL=/general.html">
 Please Wait....Configuring and Restarting.
-)=====";*/
+)=====";
 
 void send_general_configuration_values_html()
 {
@@ -195,12 +195,16 @@ void send_network_configuration_html()
 	if (server.args() > 0)  // Save Settings
 	{
 		//String temp = "";
+		bool oldDHCP = config.dhcp; // Save status to avoid general.html cleares it
 		config.dhcp = false;
 		for (uint8_t i = 0; i < server.args(); i++) {
 #ifdef DEBUG_DYNAMICDATA
 			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, server.arg(i).c_str());
 #endif // DEBUG_DYNAMICDATA
-			if (server.argName(i) == "devicename") { config.DeviceName = urldecode(server.arg(i));	continue; }
+			if (server.argName(i) == "devicename") { 
+				config.DeviceName = urldecode(server.arg(i));	
+				config.dhcp = oldDHCP;
+				continue; }
 			if (server.argName(i) == "ssid") { config.ssid = urldecode(server.arg(i));	continue; }
 			if (server.argName(i) == "password") {	config.password = urldecode(server.arg(i)); continue; }
 			if (server.argName(i) == "ip_0") {	if (checkRange(server.arg(i))) 	config.IP[0] = server.arg(i).toInt(); continue;	}
@@ -230,7 +234,38 @@ void send_network_configuration_html()
 	else
 	{
 		DBG_OUTPUT_PORT.println(server.uri());
-		handleFileRead("/config.html");
+		handleFileRead(server.uri());
+	}
+#ifdef DEBUG_DYNAMICDATA
+	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+#endif // DEBUG_DYNAMICDATA
+}
+
+void send_general_configuration_html()
+{
+#ifdef DEBUG_DYNAMICDATA
+	DBG_OUTPUT_PORT.println(__FUNCTION__);
+#endif // DEBUG_DYNAMICDATA
+	if (server.args() > 0)  // Save Settings
+	{
+		for (uint8_t i = 0; i < server.args(); i++) {
+#ifdef DEBUG_DYNAMICDATA
+			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, server.arg(i).c_str());
+#endif // DEBUG_DYNAMICDATA
+			if (server.argName(i) == "devicename") {
+				config.DeviceName = urldecode(server.arg(i)); 
+				continue;
+			}
+		}
+		server.send(200, "text/html", Page_Restart);
+		save_config();
+		ESP.restart();
+		//ConfigureWifi();
+		//AdminTimeOutCounter = 0;
+	}
+	else
+	{
+		handleFileRead(server.uri());
 	}
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);

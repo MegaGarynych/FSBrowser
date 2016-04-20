@@ -182,9 +182,15 @@
         var mkfile = document.createElement("button");
         mkfile.innerHTML = 'MkFile';
         document.getElementById(element).appendChild(mkfile);
-		var savefile = document.createElement("button");
-        savefile.innerHTML = 'Save';
-        document.getElementById(element).appendChild(savefile);
+		var saveFile = document.createElement("button");
+        saveFile.innerHTML = 'Save';
+        document.getElementById(element).appendChild(saveFile);
+        var undoButton = document.createElement("button");
+        undoButton.innerHTML = 'Undo';
+        document.getElementById(element).appendChild(undoButton);
+        var redoButton = document.createElement("button");
+        redoButton.innerHTML = 'Redo';
+        document.getElementById(element).appendChild(redoButton);
   
         function httpPostProcessRequest(){
           if (xmlHttp.readyState == 4){
@@ -203,8 +209,16 @@
           xmlHttp.send(formData);
         }
         
-        savefile.onclick = function (e) {
-          httpPost(file, editor.getValue()+"", type);
+        saveFile.onclick = function (e) {
+            editor.execCommand("saveCommand");
+        };
+        undoButton.onclick = function (e) {
+            //editor.execCommand("undoCommand");
+            editor.getSession().getUndoManager().undo(false);
+        };
+        redoButton.onclick = function (e) {
+            //editor.execCommand("redoCommand");
+            editor.getSession().getUndoManager().redo(false);
         };
         mkfile.onclick = function(e){
           if(path.value.indexOf(".") === -1) return;

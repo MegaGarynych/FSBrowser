@@ -26,6 +26,8 @@ Web access can be protected with Basic HTTP Authentication.
 ##WiFi connection
 I've implemented a way to turn ESP8266 into AP mode so I can set WiFi config when prior WiFi is not available. It is done by setting IO pin 4 to high status during boot. This pin is configurable by a `#define.` __You must ensure it is connected to GND to allow it to connect to a router__.
 
+AP Mode is also started when `loadConfig()` finds no config file (config.json). This is so to help first use without needind to hardcode user and password.
+
 WiFi connection to router is confirmed via LED on IO pin #0 as soon an IP address is got. Same LED is used to confirm AP mode by flashing 3 times. LED ping can be configured in `config.h`.
 
 ##Schematics

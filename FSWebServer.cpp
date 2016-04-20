@@ -359,7 +359,7 @@ void serverInit() {
 			return server.requestAuthentication();
 		server.sendHeader("Connection", "close");
 		server.sendHeader("Access-Control-Allow-Origin", "*");
-		server.send(200, "text/html", (Update.hasError()) ? "FAIL" : "<META http-equiv=\"refresh\" content=\"15;URL=/update\">OK");
+		server.send(200, "text/html", (Update.hasError()) ? "FAIL" : "<META http-equiv=\"refresh\" content=\"15;URL=/update\">Update correct. Restarting...");
 		ESP.restart();
 	}, updateFirmware);
 

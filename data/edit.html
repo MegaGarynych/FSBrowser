@@ -213,11 +213,9 @@
             editor.execCommand("saveCommand");
         };
         undoButton.onclick = function (e) {
-            //editor.execCommand("undoCommand");
             editor.getSession().getUndoManager().undo(false);
         };
         redoButton.onclick = function (e) {
-            //editor.execCommand("redoCommand");
             editor.getSession().getUndoManager().redo(false);
         };
         mkfile.onclick = function(e){

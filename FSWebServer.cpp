@@ -12,6 +12,7 @@
 ESP8266WebServer server(80);
 File fsUploadFile;
 String browserMD5="";
+static uint32_t updateSize = 0;
 
 //format bytes
 String formatBytes(size_t bytes) {
@@ -185,6 +186,12 @@ void setUpdateMD5() {
 				browserMD5 = urldecode(server.arg(i));
 				Update.setMD5(browserMD5.c_str());
 				continue;
+			}if (server.argName(i) == "size") {
+				updateSize = server.arg(i).toInt();
+#ifdef DEBUG_WEBSERVER
+				DBG_OUTPUT_PORT.printf("Update size: %u\n", server.arg(i).toInt());
+#endif // DEBUG_WEBSERVER
+				continue;
 			}
 		}
 		server.send(200, "text/html", "OK --> MD5: "+browserMD5);
@@ -204,9 +211,10 @@ void updateFirmware () {
 		//uint32_t maxSketchSpace = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
 		uint32_t maxSketchSpace = ESP.getSketchSize();
 #ifdef DEBUG_WEBSERVER
-		uint32_t oldValue = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
+		//uint32_t oldValue = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
 		DBG_OUTPUT_PORT.printf("Max free scketch space: %u\n", maxSketchSpace);
-		DBG_OUTPUT_PORT.printf("Old value: %u\n", oldValue);
+		DBG_OUTPUT_PORT.printf("New scketch size: %u\n", updateSize);
+		//DBG_OUTPUT_PORT.printf("Old value: %u\n", oldValue);
 #endif // DEBUG_WEBSERVER
 		if (browserMD5!= NULL && browserMD5 != "") {
 			Update.setMD5(browserMD5.c_str());
@@ -214,7 +222,7 @@ void updateFirmware () {
 			DBG_OUTPUT_PORT.printf("Hash from client: %s\n", browserMD5.c_str());
 #endif // DEBUG_WEBSERVER
 		}
-		if (!Update.begin(maxSketchSpace)) {//start with max available size
+		if (!Update.begin(updateSize)) {//start with max available size
 #ifdef DEBUG_WEBSERVER
 			Update.printError(DBG_OUTPUT_PORT);
 #endif // DEBUG_WEBSERVER
@@ -300,7 +308,7 @@ void serverInit() {
 	server.on("/general.html", []() {
 		if (!checkAuth())
 			return server.requestAuthentication();
-		send_network_configuration_html();
+		send_general_configuration_html();
 	});
 	server.on("/ntp.html", []() {
 		if (!checkAuth())
@@ -337,7 +345,7 @@ void serverInit() {
 	server.on("/setmd5", [&]() {
 		if (!checkAuth())
 			return server.requestAuthentication();
-		DBG_OUTPUT_PORT.println("md5?");
+		//DBG_OUTPUT_PORT.println("md5?");
 		setUpdateMD5();
 	});
 	server.on("/update", HTTP_GET, []() {

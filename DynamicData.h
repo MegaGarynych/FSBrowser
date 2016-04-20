@@ -16,6 +16,8 @@
 
 // ------------------ Web dynamic data methods -------------------------------- //
 
+void send_general_configuration_html();
+
 void send_general_configuration_values_html();
 
 void send_connection_state_values_html();

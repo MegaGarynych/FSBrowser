@@ -34,17 +34,19 @@ WiFi connection to router is confirmed via LED on IO pin #0 as soon an IP addres
 
 ##How to use it
 
+After compile and flash into ESP8266 you need to upload SPIFFS data using [download tool](https://github.com/esp8266/arduino-esp8266fs-plugin/releases/download/0.2.0/ESP8266FS-0.2.0.zip) for Arduino IDE. Check [SPIFFS doc](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md) for details.
+
 * `http://ip_address/admin.html` takes you to main configuration GUI.
 * `http://ip_address/edit` contains code editor. Any file stored in SPIFFS may be loaded here and saved using `CTRL+S` command.
 * `http://ip_address/update` allows remote update through WEB.
-* `http://ip_address/` includes an example info page that shows how to get realtime data from ESP.
+* `http://ip_address/` includes an example info page that shows how to get realtime data from ESP. You may change this to adapt to your project.
 
 ##TODO
 
 - ~~HTTP Authentication~~ HTTP Basic authentication implemented. Will try to improve to a more secure mechanism.
-- ~~OTA update via web interface~~ *Not reliable yet*
+- ~~OTA update via web interface~~ MD5 cheching added.
 - ~~MD5 check of uploaded firmware~~
 - ~~Configuration protection~~
-- ~~HTTPS (in evaluation).~~ *Not possible with ESP8266*
+- ~~HTTPS (in evaluation).~~ *Not possible with ESP8266 yet*
 - ~~Integration of editor in admin.html~~
 - Convert code to classes and try to design a library to add all this functionality easily. *Evaluating if this is worth, but anyway it is not currently a priority*

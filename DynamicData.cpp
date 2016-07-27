@@ -227,6 +227,8 @@ void send_network_configuration_html()
 		}
 		server.send(200, "text/html", Page_WaitAndReload);
 		save_config();
+		yield();
+		delay(1000);
 		ESP.restart();
 		//ConfigureWifi();
 		//AdminTimeOutCounter = 0;

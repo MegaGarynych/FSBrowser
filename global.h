@@ -11,12 +11,12 @@
 #include <Ticker.h>
 #include <ESP8266WiFi.h>
 #include <NtpClientLib.h>
-#include <WebSocketsServer.h>
-#include <WebSockets.h>
+//#include <WebSocketsServer.h>
+//#include <WebSockets.h>
 #include "Config.h"
 
 //#ifdef DEBUG
-//#define DEBUG_GLOBALH
+#define DEBUG_GLOBALH
 //#endif // DEBUG
 
 #define CONFIG_FILE "/config.json"

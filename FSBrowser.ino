@@ -23,8 +23,8 @@
   edit the page by going to http://esp8266fs.local/edit
 */
 
-#include <WebSocketsServer.h>
-#include <WebSockets.h>
+//#include <WebSocketsServer.h>
+//#include <WebSockets.h>
 #include <Hash.h>
 #include "global.h"
 #include <ArduinoJson.h>
@@ -35,7 +35,9 @@
 #include "FSWebServer.h"
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
+//#include <ESP8266WebServer.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
 #include <Ticker.h>
@@ -43,9 +45,7 @@
 #include <StreamString.h>
 
 #define DBG_OUTPUT_PORT Serial
-
-
-
+#define DEBUG
 
 
 void setup(void){
@@ -127,8 +127,8 @@ void setup(void){
   serverInit(); // Configure and start Web server
 
   // Web socket server setup
-  wsServer.begin();
-  wsServer.onEvent(webSocketEvent);
+  //wsServer.begin();
+  //wsServer.onEvent(webSocketEvent);
 
   
 
@@ -142,11 +142,11 @@ void setup(void){
 }
  
 void loop(void){
-  server.handleClient(); // Handle Web server requests
+  //server.handleClient(); // Handle Web server requests
   if (secondFlag) { // Run periodic tasks
 	  secondFlag = false;
 	  secondTask(); 
   }
-  wsServer.loop(); // Handle WebSocket server requests
+  //wsServer.loop(); // Handle WebSocket server requests
   ArduinoOTA.handle();
 }

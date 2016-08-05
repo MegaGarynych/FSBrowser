@@ -14,10 +14,12 @@
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
+//#include <ESP8266WebServer.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 #include <FS.h>
 
-extern ESP8266WebServer server;
+extern AsyncWebServer server;
 
 //holds the current upload
 extern File fsUploadFile;
@@ -37,28 +39,28 @@ String getContentType(String filename);
 * @param[in] File name
 * @param[out] true if file exists
 */
-bool handleFileRead(String path);
+bool handleFileRead(String path, AsyncWebServerRequest *request);
 
 /**
 * Manages file upload from web browser
 */
-void handleFileUpload();
+void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);
 
 /**
 * Manages file deletion of a SPIFFS file, triggered from web browser
 */
-void handleFileDelete();
+void handleFileDelete(AsyncWebServerRequest *request);
 
 /**
 * Manages file creation of a SPIFFS file, triggered from web browser
 */
-void handleFileCreate();
+void handleFileCreate(AsyncWebServerRequest *request);
 
-void handleFileList();
+void handleFileList(AsyncWebServerRequest *request);
 void serverInit();
-void updateFirmware();
-boolean checkAuth();
-void setUpdateMD5();
+void updateFirmware(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);
+boolean checkAuth(AsyncWebServerRequest *request);
+void setUpdateMD5(AsyncWebServerRequest *request);
 
 #endif
 

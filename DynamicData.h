@@ -16,35 +16,35 @@
 
 // ------------------ Web dynamic data methods -------------------------------- //
 
-void send_general_configuration_html();
+void send_general_configuration_html(AsyncWebServerRequest *request);
 
-void send_general_configuration_values_html();
+void send_general_configuration_values_html(AsyncWebServerRequest *request);
 
-void send_connection_state_values_html();
+void send_connection_state_values_html(AsyncWebServerRequest *request);
 
-void send_network_configuration_values_html();
+void send_network_configuration_values_html(AsyncWebServerRequest *request);
 
-void send_information_values_html();
+void send_information_values_html(AsyncWebServerRequest *request);
 
-void send_NTP_configuration_values_html();
+void send_NTP_configuration_values_html(AsyncWebServerRequest *request);
 
-void send_network_configuration_html();
+void send_network_configuration_html(AsyncWebServerRequest *request);
 
-void send_NTP_configuration_html();
+void send_NTP_configuration_html(AsyncWebServerRequest *request);
 
-void restart_esp();
+void restart_esp(AsyncWebServerRequest *request);
 
-void send_wwwauth_configuration_values_html();
+void send_wwwauth_configuration_values_html(AsyncWebServerRequest *request);
 
-void send_wwwauth_configuration_html();
+void send_wwwauth_configuration_html(AsyncWebServerRequest *request);
 
-void send_update_firmware_values_html();
+void send_update_firmware_values_html(AsyncWebServerRequest *request);
 
 String GetMacAddress();
 
 void sendTimeData();
 
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght);
+//void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght);
 
 #endif
 

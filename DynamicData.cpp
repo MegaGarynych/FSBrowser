@@ -28,11 +28,11 @@ const char Page_Restart[] PROGMEM = R"=====(
 Please Wait....Configuring and Restarting.
 )=====";
 
-void send_general_configuration_values_html()
+void send_general_configuration_values_html( AsyncWebServerRequest *request )
 {
 	String values = "";
 	values += "devicename|" + (String)config.DeviceName + "|input\n";
-	server.send(200, "text/plain", values);
+	request->send(200, "text/plain", values);
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
@@ -42,7 +42,7 @@ void send_general_configuration_values_html()
 //   FILL THE PAGE WITH NETWORKSTATE & NETWORKS
 //
 
-void send_connection_state_values_html()
+void send_connection_state_values_html(AsyncWebServerRequest *request)
 {
 
 	String state = "N/A";
@@ -95,7 +95,7 @@ void send_connection_state_values_html()
 	String values = "";
 	values += "connectionstate|" + state + "|div\n";
 	values += "networks|" + Networks + "|div\n";
-	server.send(200, "text/plain", values);
+	request->send(200, "text/plain", values);
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
@@ -106,7 +106,7 @@ void send_connection_state_values_html()
 //   FILL THE PAGE WITH VALUES
 //
 
-void send_network_configuration_values_html()
+void send_network_configuration_values_html(AsyncWebServerRequest *request)
 {
 
 	String values = "";
@@ -131,7 +131,7 @@ void send_network_configuration_values_html()
 	values += "dns_3|" + (String)config.DNS[3] + "|input\n";
 	values += "dhcp|" + (String)(config.dhcp ? "checked" : "") + "|chk\n";
 	
-	server.send(200, "text/plain", values);
+	request->send(200, "text/plain", values);
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
@@ -141,7 +141,7 @@ void send_network_configuration_values_html()
 // FILL WITH INFOMATION
 // 
 
-void send_information_values_html()
+void send_information_values_html(AsyncWebServerRequest *request)
 {
 
 	String values = "";
@@ -156,7 +156,7 @@ void send_information_values_html()
 	values += "x_ntp_time|" + ntp->getTimeStr() + "|div\n";
 	values += "x_ntp_date|" + ntp->getDateStr() + "|div\n";
 	
-	server.send(200, "text/plain", values);
+	request->send(200, "text/plain", values);
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
@@ -172,7 +172,7 @@ String GetMacAddress()
 	return  String(macStr);
 }
 
-void send_NTP_configuration_values_html()
+void send_NTP_configuration_values_html(AsyncWebServerRequest *request)
 {
 
 	String values = "";
@@ -180,52 +180,52 @@ void send_NTP_configuration_values_html()
 	values += "update|" + (String)config.Update_Time_Via_NTP_Every + "|input\n";
 	values += "tz|" + (String)config.timezone + "|input\n";
 	values += "dst|" + (String)(config.daylight ? "checked" : "") + "|chk\n";
-	server.send(200, "text/plain", values);
+	request->send(200, "text/plain", values);
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
 
 }
 
-void send_network_configuration_html()
+void send_network_configuration_html(AsyncWebServerRequest *request)
 {
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
-	if (server.args() > 0)  // Save Settings
+	if (request->args() > 0)  // Save Settings
 	{
 		//String temp = "";
 		bool oldDHCP = config.dhcp; // Save status to avoid general.html cleares it
 		config.dhcp = false;
-		for (uint8_t i = 0; i < server.args(); i++) {
+		for (uint8_t i = 0; i < request->args(); i++) {
 #ifdef DEBUG_DYNAMICDATA
 			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, server.arg(i).c_str());
 #endif // DEBUG_DYNAMICDATA
-			if (server.argName(i) == "devicename") { 
-				config.DeviceName = urldecode(server.arg(i));	
+			if (request->argName(i) == "devicename") {
+				config.DeviceName = urldecode(request->arg(i));
 				config.dhcp = oldDHCP;
 				continue; }
-			if (server.argName(i) == "ssid") { config.ssid = urldecode(server.arg(i));	continue; }
-			if (server.argName(i) == "password") {	config.password = urldecode(server.arg(i)); continue; }
-			if (server.argName(i) == "ip_0") {	if (checkRange(server.arg(i))) 	config.IP[0] = server.arg(i).toInt(); continue;	}
-			if (server.argName(i) == "ip_1") {  if (checkRange(server.arg(i))) 	config.IP[1] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "ip_2") {  if (checkRange(server.arg(i))) 	config.IP[2] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "ip_3") {  if (checkRange(server.arg(i))) 	config.IP[3] = server.arg(i).toInt(); continue;	}
-			if (server.argName(i) == "nm_0") {  if (checkRange(server.arg(i))) 	config.Netmask[0] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "nm_1") {  if (checkRange(server.arg(i))) 	config.Netmask[1] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "nm_2") {  if (checkRange(server.arg(i))) 	config.Netmask[2] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "nm_3") {  if (checkRange(server.arg(i))) 	config.Netmask[3] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "gw_0") {  if (checkRange(server.arg(i))) 	config.Gateway[0] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "gw_1") {  if (checkRange(server.arg(i))) 	config.Gateway[1] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "gw_2") {  if (checkRange(server.arg(i))) 	config.Gateway[2] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "gw_3") {  if (checkRange(server.arg(i))) 	config.Gateway[3] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "dns_0") { if (checkRange(server.arg(i))) 	config.DNS[0] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "dns_1") { if (checkRange(server.arg(i))) 	config.DNS[1] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "dns_2") { if (checkRange(server.arg(i))) 	config.DNS[2] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "dns_3") { if (checkRange(server.arg(i))) 	config.DNS[3] = server.arg(i).toInt(); continue; }
-			if (server.argName(i) == "dhcp") { config.dhcp = true; continue; }
+			if (request->argName(i) == "ssid") { config.ssid = urldecode(request->arg(i));	continue; }
+			if (request->argName(i) == "password") {	config.password = urldecode(request->arg(i)); continue; }
+			if (request->argName(i) == "ip_0") {	if (checkRange(request->arg(i))) 	config.IP[0] = request->arg(i).toInt(); continue;	}
+			if (request->argName(i) == "ip_1") {  if (checkRange(request->arg(i))) 	config.IP[1] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "ip_2") {  if (checkRange(request->arg(i))) 	config.IP[2] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "ip_3") {  if (checkRange(request->arg(i))) 	config.IP[3] = request->arg(i).toInt(); continue;	}
+			if (request->argName(i) == "nm_0") {  if (checkRange(request->arg(i))) 	config.Netmask[0] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "nm_1") {  if (checkRange(request->arg(i))) 	config.Netmask[1] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "nm_2") {  if (checkRange(request->arg(i))) 	config.Netmask[2] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "nm_3") {  if (checkRange(request->arg(i))) 	config.Netmask[3] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "gw_0") {  if (checkRange(request->arg(i))) 	config.Gateway[0] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "gw_1") {  if (checkRange(request->arg(i))) 	config.Gateway[1] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "gw_2") {  if (checkRange(request->arg(i))) 	config.Gateway[2] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "gw_3") {  if (checkRange(request->arg(i))) 	config.Gateway[3] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "dns_0") { if (checkRange(request->arg(i))) 	config.DNS[0] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "dns_1") { if (checkRange(request->arg(i))) 	config.DNS[1] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "dns_2") { if (checkRange(request->arg(i))) 	config.DNS[2] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "dns_3") { if (checkRange(request->arg(i))) 	config.DNS[3] = request->arg(i).toInt(); continue; }
+			if (request->argName(i) == "dhcp") { config.dhcp = true; continue; }
 		}
-		server.send(200, "text/html", Page_WaitAndReload);
+		request->send(200, "text/html", Page_WaitAndReload);
 		save_config();
 		yield();
 		delay(1000);
@@ -235,31 +235,31 @@ void send_network_configuration_html()
 	}
 	else
 	{
-		DBG_OUTPUT_PORT.println(server.uri());
-		handleFileRead(server.uri());
+		DBG_OUTPUT_PORT.println(request->url());
+		handleFileRead(request->url(),request);
 	}
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
 }
 
-void send_general_configuration_html()
+void send_general_configuration_html(AsyncWebServerRequest *request)
 {
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
-	if (server.args() > 0)  // Save Settings
+	if (request->args() > 0)  // Save Settings
 	{
-		for (uint8_t i = 0; i < server.args(); i++) {
+		for (uint8_t i = 0; i < request->args(); i++) {
 #ifdef DEBUG_DYNAMICDATA
 			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, server.arg(i).c_str());
 #endif // DEBUG_DYNAMICDATA
-			if (server.argName(i) == "devicename") {
-				config.DeviceName = urldecode(server.arg(i)); 
+			if (request->argName(i) == "devicename") {
+				config.DeviceName = urldecode(request->arg(i));
 				continue;
 			}
 		}
-		server.send(200, "text/html", Page_Restart);
+		request->send(200, "text/html", Page_Restart);
 		save_config();
 		ESP.restart();
 		//ConfigureWifi();
@@ -267,36 +267,36 @@ void send_general_configuration_html()
 	}
 	else
 	{
-		handleFileRead(server.uri());
+		handleFileRead(request->url(), request);
 	}
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
 }
 
-void send_NTP_configuration_html()
+void send_NTP_configuration_html(AsyncWebServerRequest *request)
 {
-	if (server.args() > 0)  // Save Settings
+	if (request->args() > 0)  // Save Settings
 	{
 		config.daylight = false;
 		//String temp = "";
-		for (uint8_t i = 0; i < server.args(); i++) {
-			if (server.argName(i) == "ntpserver") {
-				config.ntpServerName = urldecode(server.arg(i));
+		for (uint8_t i = 0; i < request->args(); i++) {
+			if (request->argName(i) == "ntpserver") {
+				config.ntpServerName = urldecode(request->arg(i));
 				ntp->setNtpServerName(config.ntpServerName);
 				continue;
 			}
-			if (server.argName(i) == "update") {
-				config.Update_Time_Via_NTP_Every = server.arg(i).toInt();
+			if (request->argName(i) == "update") {
+				config.Update_Time_Via_NTP_Every = request->arg(i).toInt();
 				ntp->setInterval(config.Update_Time_Via_NTP_Every * 60);
 				continue;
 			}
-			if (server.argName(i) == "tz") {
-				config.timezone = server.arg(i).toInt();
+			if (request->argName(i) == "tz") {
+				config.timezone = request->arg(i).toInt();
 				ntp->setTimeZone(config.timezone / 10);
 				continue;
 			}
-			if (server.argName(i) == "dst") {
+			if (request->argName(i) == "dst") {
 				config.daylight = true;
 #ifdef DEBUG_DYNAMICDATA
 				DBG_OUTPUT_PORT.printf("Daylight Saving: %d\n", config.daylight);
@@ -319,50 +319,50 @@ void send_NTP_configuration_html()
 
 }
 
-void restart_esp() {
+void restart_esp(AsyncWebServerRequest *request) {
 	//server.send(200, "text/html", Page_Restart);
 	delay(1000);
 	ESP.reset();
 }
 
-void send_wwwauth_configuration_values_html() {
+void send_wwwauth_configuration_values_html(AsyncWebServerRequest *request) {
 	String values = "";
 
 	values += "wwwauth|" + (String)(httpAuth.auth ? "checked" : "") + "|chk\n";
 	values += "wwwuser|" + (String)httpAuth.wwwUsername + "|input\n";
 	values += "wwwpass|" + (String)httpAuth.wwwPassword + "|input\n";
 	
-	server.send(200, "text/plain", values);
+	request->send(200, "text/plain", values);
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
 }
 
-void send_wwwauth_configuration_html()
+void send_wwwauth_configuration_html(AsyncWebServerRequest *request)
 {
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.printf("%s %d\n",__FUNCTION__, server.args());
 #endif // DEBUG_DYNAMICDATA
-	if (server.args() > 0)  // Save Settings
+	if (request->args() > 0)  // Save Settings
 	{
 		httpAuth.auth = false;
 		//String temp = "";
-		for (uint8_t i = 0; i < server.args(); i++) {
-			if (server.argName(i) == "wwwuser") {
-				httpAuth.wwwUsername = urldecode(server.arg(i));
+		for (uint8_t i = 0; i < request->args(); i++) {
+			if (request->argName(i) == "wwwuser") {
+				httpAuth.wwwUsername = urldecode(request->arg(i));
 #ifdef DEBUG_DYNAMICDATA
 				DBG_OUTPUT_PORT.printf("User: %s\n", httpAuth.wwwUsername.c_str());
 #endif // DEBUG_DYNAMICDATA
 				continue;
 			}
-			if (server.argName(i) == "wwwpass") {
-				httpAuth.wwwPassword = urldecode(server.arg(i));
+			if (request->argName(i) == "wwwpass") {
+				httpAuth.wwwPassword = urldecode(request->arg(i));
 #ifdef DEBUG_DYNAMICDATA
 				DBG_OUTPUT_PORT.printf("Pass: %s\n", httpAuth.wwwPassword.c_str());
 #endif // DEBUG_DYNAMICDATA
 				continue;
 			}
-			if (server.argName(i) == "wwwauth") {
+			if (request->argName(i) == "wwwauth") {
 				httpAuth.auth = true;
 #ifdef DEBUG_DYNAMICDATA
 				DBG_OUTPUT_PORT.printf("HTTP Auth enabled\n");
@@ -373,14 +373,14 @@ void send_wwwauth_configuration_html()
 
 		saveHTTPAuth();
 	}
-	handleFileRead("/system.html");
+	handleFileRead("/system.html", request);
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
 
 }
 
-void send_update_firmware_values_html() {
+void send_update_firmware_values_html(AsyncWebServerRequest *request) {
 	String values = "";
 	uint32_t maxSketchSpace = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
 	//bool updateOK = Update.begin(maxSketchSpace);
@@ -401,7 +401,7 @@ void send_update_firmware_values_html() {
 		values += "remupdResult||div\n";
 	}
 	
-	server.send(200, "text/plain", values);
+	request->send(200, "text/plain", values);
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
 #endif // DEBUG_DYNAMICDATA

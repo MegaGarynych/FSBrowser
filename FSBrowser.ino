@@ -132,17 +132,17 @@ void setup(void){
 
   
 
+  
+  MDNS.begin(config.DeviceName.c_str()); // I've not got this to work. Need some investigation.
+  MDNS.addService("http", "tcp", 80);
   ConfigureOTA(httpAuth.wwwPassword.c_str());
 
-  //MDNS.begin(config.DeviceName.c_str()); // I've not got this to work. Need some investigation.
-  MDNS.addService("http", "tcp", 80);
 #ifdef DEBUG
   DBG_OUTPUT_PORT.println("END Setup");
 #endif // DEBUG
 }
  
 void loop(void){
-  //server.handleClient(); // Handle Web server requests
   if (secondFlag) { // Run periodic tasks
 	  secondFlag = false;
 	  secondTask(); 

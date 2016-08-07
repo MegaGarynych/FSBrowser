@@ -19,7 +19,7 @@ ntpClient* ntp;
 //boolean wifiIsConnected = false;
 long wifiDisconnectedSince = 0;
 wifiStatus currentWifiStatus = FIRST_RUN;
-WebSocketsServer wsServer = WebSocketsServer(81);
+//WebSocketsServer wsServer = WebSocketsServer(81);
 extern strConfig config;
 
 
@@ -90,7 +90,7 @@ void secondTask() {
 #ifdef DEBUG_GLOBALH
 	//DBG_OUTPUT_PORT.println(ntp->getTimeString());
 #endif // DEBUG_GLOBALH
-	sendTimeData();
+	//sendTimeData();
 }
 
 String urldecode(String input) // (based on https://code.google.com/p/avr-netino/)

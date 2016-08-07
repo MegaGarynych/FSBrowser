@@ -4,7 +4,7 @@
 
 #define DBG_OUTPUT_PORT Serial
 
-//#define DEBUG_DYNAMICDATA
+#define DEBUG_DYNAMICDATA
 
 #include "DynamicData.h"
 #include "Config.h"
@@ -15,7 +15,7 @@
 extern ntpClient* ntp;
 
 #ifdef DEBUG_DYNAMICDATA
-int wsNumber = 0;
+//int wsNumber = 0;
 #endif // DEBUG_DYNAMICDATA
 
 const char Page_WaitAndReload[] PROGMEM = R"=====(
@@ -199,7 +199,7 @@ void send_network_configuration_html(AsyncWebServerRequest *request)
 		config.dhcp = false;
 		for (uint8_t i = 0; i < request->args(); i++) {
 #ifdef DEBUG_DYNAMICDATA
-			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, server.arg(i).c_str());
+			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, request->arg(i).c_str());
 #endif // DEBUG_DYNAMICDATA
 			if (request->argName(i) == "devicename") {
 				config.DeviceName = urldecode(request->arg(i));
@@ -252,7 +252,7 @@ void send_general_configuration_html(AsyncWebServerRequest *request)
 	{
 		for (uint8_t i = 0; i < request->args(); i++) {
 #ifdef DEBUG_DYNAMICDATA
-			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, server.arg(i).c_str());
+			DBG_OUTPUT_PORT.printf("Arg %d: %s\n", i, request->arg(i).c_str());
 #endif // DEBUG_DYNAMICDATA
 			if (request->argName(i) == "devicename") {
 				config.DeviceName = urldecode(request->arg(i));
@@ -311,7 +311,7 @@ void send_NTP_configuration_html(AsyncWebServerRequest *request)
 		
 		setTime(ntp->getTime()); //set time
 	}
-	handleFileRead("/ntp.html");
+	handleFileRead("/ntp.html", request);
 	//server.send(200, "text/html", PAGE_NTPConfiguration);
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
@@ -321,8 +321,12 @@ void send_NTP_configuration_html(AsyncWebServerRequest *request)
 
 void restart_esp(AsyncWebServerRequest *request) {
 	//server.send(200, "text/html", Page_Restart);
+#ifdef DEBUG_DYNAMICDATA
+	DBG_OUTPUT_PORT.println(__FUNCTION__);
+#endif // DEBUG_DYNAMICDATA
+	SPIFFS.end();
 	delay(1000);
-	ESP.reset();
+	ESP.restart();
 }
 
 void send_wwwauth_configuration_values_html(AsyncWebServerRequest *request) {
@@ -341,7 +345,7 @@ void send_wwwauth_configuration_values_html(AsyncWebServerRequest *request) {
 void send_wwwauth_configuration_html(AsyncWebServerRequest *request)
 {
 #ifdef DEBUG_DYNAMICDATA
-	DBG_OUTPUT_PORT.printf("%s %d\n",__FUNCTION__, server.args());
+	DBG_OUTPUT_PORT.printf("%s %d\n",__FUNCTION__, request->args());
 #endif // DEBUG_DYNAMICDATA
 	if (request->args() > 0)  // Save Settings
 	{
@@ -407,7 +411,7 @@ void send_update_firmware_values_html(AsyncWebServerRequest *request) {
 #endif // DEBUG_DYNAMICDATA
 }
 
-void sendTimeData() {
+/*void sendTimeData() {
 	for (int i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++) {
 #ifdef DEBUG_DYNAMICDATA
 		//DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
@@ -462,4 +466,4 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 		break;
 	}
 
-}
+}*/

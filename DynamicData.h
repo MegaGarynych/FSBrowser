@@ -42,7 +42,7 @@ void send_update_firmware_values_html(AsyncWebServerRequest *request);
 
 String GetMacAddress();
 
-void sendTimeData();
+//void sendTimeData();
 
 //void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght);
 

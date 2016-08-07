@@ -57,7 +57,7 @@ bool handleFileRead(String path, AsyncWebServerRequest *request) {
 	}
 	if (path.endsWith("/"))
 		path += "index.htm";
-	String contentType = getContentType(path);
+	String contentType = getContentType(path,request);
 	String pathWithGz = path + ".gz";
 	if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
 		if (SPIFFS.exists(pathWithGz))
@@ -85,10 +85,15 @@ void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t in
 	}
 	if (!filename.startsWith("/")) filename = "/" + filename;
 	fsUploadFile = SPIFFS.open(filename, "w");
-	for (size_t i = 0; i < len; i++) {
+	if (fsUploadFile) {
+		if (fsUploadFile.write(data, len) != len) {
+			DBG_OUTPUT_PORT.println("Write error during upload");
+		}
+	}
+	/*for (size_t i = 0; i < len; i++) {
 		if (fsUploadFile)
 			fsUploadFile.write(data[i]);
-	}
+	}*/
 	if (final) {
 		if (fsUploadFile)
 			fsUploadFile.close();
@@ -223,66 +228,48 @@ void setUpdateMD5(AsyncWebServerRequest *request) {
 void updateFirmware(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
 	// handler for the file upload, get's the sketch bytes, and writes
 	// them through the Update object
-	HTTPUpload& upload = server.upload();
-	if (upload.status == UPLOAD_FILE_START) {
-		WiFiUDP::stopAll();
-#ifdef DEBUG_WEBSERVER
-		DBG_OUTPUT_PORT.printf("Update: %s\n", upload.filename.c_str());
-#endif // DEBUG_WEBSERVER
-		//uint32_t maxSketchSpace = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
+	static long totalSize = 0;
+	if (!index) { //UPLOAD_FILE_START
+		SPIFFS.end();
+		DBG_OUTPUT_PORT.printf("Update start: %s\n", filename.c_str());
 		uint32_t maxSketchSpace = ESP.getSketchSize();
-#ifdef DEBUG_WEBSERVER
-		//uint32_t oldValue = (ESP.getSketchSize() - 0x1000) & 0xFFFFF000;
 		DBG_OUTPUT_PORT.printf("Max free scketch space: %u\n", maxSketchSpace);
 		DBG_OUTPUT_PORT.printf("New scketch size: %u\n", updateSize);
-		//DBG_OUTPUT_PORT.printf("Old value: %u\n", oldValue);
-#endif // DEBUG_WEBSERVER
-		if (browserMD5!= NULL && browserMD5 != "") {
+		if (browserMD5 != NULL && browserMD5 != "") {
 			Update.setMD5(browserMD5.c_str());
-#ifdef DEBUG_WEBSERVER
 			DBG_OUTPUT_PORT.printf("Hash from client: %s\n", browserMD5.c_str());
-#endif // DEBUG_WEBSERVER
 		}
 		if (!Update.begin(updateSize)) {//start with max available size
-#ifdef DEBUG_WEBSERVER
 			Update.printError(DBG_OUTPUT_PORT);
-#endif // DEBUG_WEBSERVER
 		}
+
 	}
-	else if (upload.status == UPLOAD_FILE_WRITE) {
-#ifdef DEBUG_WEBSERVER
-		DBG_OUTPUT_PORT.print(".");
-#endif // DEBUG_WEBSERVER
-		if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
-#ifdef DEBUG_WEBSERVER
-			Update.printError(DBG_OUTPUT_PORT);
-#endif // DEBUG_WEBSERVER
-		}
+
+	// Get upload file, continue if not start
+	totalSize += len;
+	//DBG_OUTPUT_PORT.print(".");
+	size_t written = Update.write(data, len);
+	if (written != len) {
+		DBG_OUTPUT_PORT.printf("len = %d, written = %d, totalSize = %d\r\n",len,written,totalSize);
+		//Update.printError(DBG_OUTPUT_PORT);
+		//return;
 	}
-	else if (upload.status == UPLOAD_FILE_END) {
+	if (final) {  // UPLOAD_FILE_END
 		String updateHash;
+		DBG_OUTPUT_PORT.println("Applying update...");
 		if (Update.end(true)) { //true to set the size to the current progress
-#ifdef DEBUG_WEBSERVER
 			updateHash = Update.md5String();
 			DBG_OUTPUT_PORT.printf("Upload finished. Calculated MD5: %s\n", updateHash.c_str());
-			DBG_OUTPUT_PORT.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-#endif // DEBUG_WEBSERVER
+			DBG_OUTPUT_PORT.printf("Update Success: %u\nRebooting...\n", request->contentLength());
 		}
 		else {
-#ifdef DEBUG_WEBSERVER
 			updateHash = Update.md5String();
 			DBG_OUTPUT_PORT.printf("Upload failed. Calculated MD5: %s\n", updateHash.c_str());
 			Update.printError(DBG_OUTPUT_PORT);
-#endif // DEBUG_WEBSERVER
 		}
 	}
-	else if (upload.status == UPLOAD_FILE_ABORTED) {
-		Update.end();
-#ifdef DEBUG_WEBSERVER
-		DBG_OUTPUT_PORT.println("Update was aborted");
-#endif // DEBUG_WEBSERVER
-	}
-	delay(2);
+	
+	//delay(2);
 }
 
 void serverInit() {
@@ -336,26 +323,27 @@ void serverInit() {
 		send_NTP_configuration_html(request);
 	});
 	//server.on("/admin/devicename", send_devicename_value_html);
+	server.on("/admin/restart", [](AsyncWebServerRequest *request) {
+		DBG_OUTPUT_PORT.println(request->url());
+		if (!checkAuth(request))
+			return request->requestAuthentication();
+		restart_esp(request);
+	});
+	server.on("/admin/wwwauth", [](AsyncWebServerRequest *request) {
+		if (!checkAuth(request))
+			return request->requestAuthentication();
+		send_wwwauth_configuration_values_html(request);
+	});
 	server.on("/admin", HTTP_GET, [](AsyncWebServerRequest *request) {
 		if (!checkAuth(request))
 			return request->requestAuthentication();
 		if (!handleFileRead("/admin.html", request))
 			request->send(404, "text/plain", "FileNotFound");
 	});
-	server.on("/admin/restart", [](AsyncWebServerRequest *request) {
-		if (!checkAuth(request))
-			return request->requestAuthentication();
-		restart_esp(request);
-	});
 	server.on("/system.html", [](AsyncWebServerRequest *request) {
 		if (!checkAuth(request))
 			return request->requestAuthentication();
 		send_wwwauth_configuration_html(request);
-	});
-	server.on("/admin/wwwauth", [](AsyncWebServerRequest *request) {
-		if (!checkAuth(request))
-			return request->requestAuthentication();
-		send_wwwauth_configuration_values_html(request);
 	});
 	server.on("/update/updatepossible", [](AsyncWebServerRequest *request) {
 		if (!checkAuth(request))
@@ -387,6 +375,7 @@ void serverInit() {
 	//called when the url is not defined here
 	//use it to load content from SPIFFS
 	server.onNotFound([](AsyncWebServerRequest *request) {
+		DBG_OUTPUT_PORT.printf("Not found: %s\r\n", request->url().c_str());
 		if (!checkAuth(request))
 			return request->requestAuthentication();
 		AsyncWebServerResponse *response = request->beginResponse(200);
@@ -396,34 +385,36 @@ void serverInit() {
 			request->send(404, "text/plain", "FileNotFound");
 	});
 
-#ifndef HIDE_SECRET
-	server.on(SECRET_FILE, HTTP_GET, []() {
-		if (!checkAuth())
-			return server.requestAuthentication();
-		server.sendHeader("Connection", "close");
-		server.sendHeader("Access-Control-Allow-Origin", "*");
-		server.send(403, "text/plain", "Forbidden");
+#ifdef HIDE_SECRET
+	server.on(SECRET_FILE, HTTP_GET, [](AsyncWebServerRequest *request) {
+		if (!checkAuth(request))
+			return request->requestAuthentication();
+		AsyncWebServerResponse *response = request->beginResponse(403, "text/plain", "Forbidden");
+		response->addHeader("Connection", "close");
+		response->addHeader("Access-Control-Allow-Origin", "*");
+		request->send(response);
 	});
 #endif // HIDE_SECRET
 
-#ifndef HIDE_CONFIG
-	server.on(CONFIG_FILE, HTTP_GET, []() {
-		if (!checkAuth())
-			return server.requestAuthentication();
-		server.sendHeader("Connection", "close");
-		server.sendHeader("Access-Control-Allow-Origin", "*");
-		server.send(403, "text/plain", "Forbidden");
+#ifdef HIDE_CONFIG
+	server.on(CONFIG_FILE, HTTP_GET, [](AsyncWebServerRequest *request) {
+		if (!checkAuth(request))
+			return request->requestAuthentication();
+		AsyncWebServerResponse *response = request->beginResponse(403, "text/plain", "Forbidden");
+		response->addHeader("Connection", "close");
+		response->addHeader("Access-Control-Allow-Origin", "*");
+		request->send(response);
 	});
 #endif // HIDE_CONFIG
 
 	//get heap status, analog input value and all GPIO statuses in one json call
-	server.on("/all", HTTP_GET, []() {
+	server.on("/all", HTTP_GET, [](AsyncWebServerRequest *request) {
 		String json = "{";
 		json += "\"heap\":" + String(ESP.getFreeHeap());
 		json += ", \"analog\":" + String(analogRead(A0));
 		json += ", \"gpio\":" + String((uint32_t)(((GPI | GPO) & 0xFFFF) | ((GP16I & 0x01) << 16)));
 		json += "}";
-		server.send(200, "text/json", json);
+		request->send(200, "text/json", json);
 		json = String();
 	});
 	server.begin();

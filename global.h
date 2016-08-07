@@ -38,7 +38,7 @@ extern long wifiDisconnectedSince; // When disconnected, time since this situati
 
 extern wifiStatus currentWifiStatus;
 
-extern WebSocketsServer wsServer; // Socket server to send dynamic data to web browser
+//extern WebSocketsServer wsServer; // Socket server to send dynamic data to web browser
 
 /**
 * Sets WiFi configuration as config struct

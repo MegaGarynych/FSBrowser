@@ -233,7 +233,7 @@ void ConfigureOTA(String password) {
 		DBG_OUTPUT_PORT.println("\nEnd OTA\n");
 	});
 	ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-		DBG_OUTPUT_PORT.printf("OTA Progress: %u%%\r", (progress / (total / 100)));
+		DBG_OUTPUT_PORT.printf("OTA Progress: %u%%\n", (progress / (total / 100)));
 	});
 	ArduinoOTA.onError([](ota_error_t error) {
 		DBG_OUTPUT_PORT.printf("Error[%u]: ", error);

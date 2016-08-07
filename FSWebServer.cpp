@@ -231,6 +231,7 @@ void updateFirmware(AsyncWebServerRequest *request, String filename, size_t inde
 	static long totalSize = 0;
 	if (!index) { //UPLOAD_FILE_START
 		SPIFFS.end();
+		Update.runAsync(true);
 		DBG_OUTPUT_PORT.printf("Update start: %s\n", filename.c_str());
 		uint32_t maxSketchSpace = ESP.getSketchSize();
 		DBG_OUTPUT_PORT.printf("Max free scketch space: %u\n", maxSketchSpace);
@@ -247,7 +248,7 @@ void updateFirmware(AsyncWebServerRequest *request, String filename, size_t inde
 
 	// Get upload file, continue if not start
 	totalSize += len;
-	//DBG_OUTPUT_PORT.print(".");
+	DBG_OUTPUT_PORT.print(".");
 	size_t written = Update.write(data, len);
 	if (written != len) {
 		DBG_OUTPUT_PORT.printf("len = %d, written = %d, totalSize = %d\r\n",len,written,totalSize);

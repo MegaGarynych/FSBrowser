@@ -13,8 +13,6 @@
 #include <StreamString.h>
 
 extern ntpClient* ntp;
-static int numNetwoks = 0;
-static bool scanTriggered = false;
 
 #ifdef DEBUG_DYNAMICDATA
 int wsNumber = 0;
@@ -40,27 +38,12 @@ void send_general_configuration_values_html( AsyncWebServerRequest *request )
 #endif // DEBUG_DYNAMICDATA
 }
 
-void onCompleteScan(int n) {
-	os_printf("Complete scan %d\r\n", n);
-	delay(3000);
-	numNetwoks = n;
-}
-
-void clearScan(AsyncWebServerRequest *request) {
-	WiFi.scanDelete();
-	request->send(200, "text/plain", "");
-	scanTriggered = false;
-	numNetwoks = 0;
-}
-
 //
 //   FILL THE PAGE WITH NETWORKSTATE & NETWORKS
 //
 
 void send_connection_state_values_html(AsyncWebServerRequest *request)
 {
-	
-	//static bool networksReady = false;
 
 	String state = "N/A";
 	String Networks = "";
@@ -73,64 +56,46 @@ void send_connection_state_values_html(AsyncWebServerRequest *request)
 	else if (WiFi.status() == 6) state = "DISCONNECTED";
 
 
-	//int n = 0;
-	if (!scanTriggered) {
-		WiFi.scanNetworksAsync(onCompleteScan);
-		scanTriggered = true;
-	}
-	os_printf("Scan result = %d Triggered = %s\r\n", numNetwoks, scanTriggered?"true":"false");
-	if (numNetwoks == 0)
+
+	int n = WiFi.scanNetworks();
+
+	if (n == 0)
 	{
 		Networks = "<font color='#FF0000'>No networks found!</font>";
-		scanTriggered = false;
-	}
-	else if (numNetwoks == WIFI_SCAN_FAILED) {
-		Networks = "<font color='#FF0000'>Error scanning networks!</font>";
-		scanTriggered = false;
-	}
-	else if (numNetwoks == WIFI_SCAN_RUNNING) {
-		//Networks = "<font color='#0000FF'>Scanning networks...</font>";
 	}
 	else
 	{
-		/*if (!networksReady) {
-			networksReady = true;
-		} else {*/
-			Networks = "Found " + String(numNetwoks) + " Networks<br>";
-			Networks += "<table border='0' cellspacing='0' cellpadding='3'>";
-			Networks += "<tr bgcolor='#DDDDDD' ><td><strong>Name</strong></td><td><strong>Quality</strong></td><td><strong>Enc</strong></td><tr>";
-			for (int i = 0; i < numNetwoks; ++i)
+
+
+		Networks = "Found " + String(n) + " Networks<br>";
+		Networks += "<table border='0' cellspacing='0' cellpadding='3'>";
+		Networks += "<tr bgcolor='#DDDDDD' ><td><strong>Name</strong></td><td><strong>Quality</strong></td><td><strong>Enc</strong></td><tr>";
+		for (int i = 0; i < n; ++i)
+		{
+			int quality = 0;
+			if (WiFi.RSSI(i) <= -100)
 			{
-				os_printf("Network %d, %s\r\n", i, WiFi.SSID(i).c_str());
-				int quality = 0;
-				if (WiFi.RSSI(i) <= -100)
-				{
-					quality = 0;
-				}
-				else if (WiFi.RSSI(i) >= -50)
-				{
-					quality = 100;
-				}
-				else
-				{
-					quality = 2 * (WiFi.RSSI(i) + 100);
-				}
-
-
-				Networks += "<tr><td><a href='javascript:selssid(\"" + String(WiFi.SSID(i)) + "\")'>" + String(WiFi.SSID(i)) + "</a></td><td>" + String(quality) + "%</td><td>" + String((WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : "*") + "</td></tr>";
+				quality = 0;
 			}
-			Networks += "</table>";
-			//scanTriggered = false;
-			//networksReady = false;
-		//}
+			else if (WiFi.RSSI(i) >= -50)
+			{
+				quality = 100;
+			}
+			else
+			{
+				quality = 2 * (WiFi.RSSI(i) + 100);
+			}
+
+
+			Networks += "<tr><td><a href='javascript:selssid(\"" + String(WiFi.SSID(i)) + "\")'>" + String(WiFi.SSID(i)) + "</a></td><td>" + String(quality) + "%</td><td>" + String((WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : "*") + "</td></tr>";
+		}
+		Networks += "</table>";
 	}
 
-	//if ((numNetwoks != WIFI_SCAN_RUNNING) ) {
-		String values = "";
-		values += "connectionstate|" + state + "|div\n";
-		values += "networks|" + Networks + "|div\n";
-		request->send(200, "text/plain", values);
-	//}
+	String values = "";
+	values += "connectionstate|" + state + "|div\n";
+	values += "networks|" + Networks + "|div\n";
+	request->send(200, "text/plain", values);
 #ifdef DEBUG_DYNAMICDATA
 	DBG_OUTPUT_PORT.println(__FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
@@ -460,25 +425,29 @@ void sendTimeData() {
 
 void webSocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *payload, size_t length) {
 
-	if (type == WS_EVT_DISCONNECT) {
+	switch (type) {
+	case WS_EVT_DISCONNECT:
 #ifdef DEBUG_DYNAMICDATA
-		os_printf("[%u] Disconnected!\n", client->id());
+		DBG_OUTPUT_PORT.printf("[%u] Disconnected!\n", client->id());
 #endif // DEBUG_DYNAMICDATA
-	} else if (type== WS_EVT_CONNECT) {
+		break;
+	case WS_EVT_CONNECT:
+	{
 #ifdef DEBUG_DYNAMICDATA
 		wsNumber = client->id();
 		IPAddress ip = client->remoteIP();
-		os_printf("[%u] Connected from %d.%d.%d.%d url: %s\n", client->id(), ip[0], ip[1], ip[2], ip[3], payload);
+		DBG_OUTPUT_PORT.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", client->id(), ip[0], ip[1], ip[2], ip[3], payload);
 #endif // DEBUG_DYNAMICDATA
 
 		// send message to client
 		//wsServer.sendTXT(num, "Connected");
 	}
-	else if (type == WS_EVT_DATA) {
+	break;
+	case WS_EVT_DATA:
 		AwsFrameInfo * info = (AwsFrameInfo*)arg;
 		String msg = "";
-		if (info->final && info->index == 0 && info->len == length) { 	//the whole message is in a single frame and we got all of it's data
-
+		if (info->final && info->index == 0 && info->len == length) {
+			//the whole message is in a single frame and we got all of it's data
 			if (info->opcode == WS_TEXT) {
 				for (size_t i = 0; i < info->len; i++) {
 					msg += (char)payload[i];
@@ -492,19 +461,20 @@ void webSocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsE
 				}
 			}
 #ifdef DEBUG_DYNAMICDATA
-			os_printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT) ? "text" : "binary", info->len);
-			os_printf("%s\r\n", msg.c_str());
+			DBG_OUTPUT_PORT.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT) ? "text" : "binary", info->len);
+			DBG_OUTPUT_PORT.printf("%s\r\n", msg.c_str());
 #endif // DEBUG_DYNAMICDATA
 		}
-		else {	//message is comprised of multiple frames or the frame is split into multiple packets
+		else {
+			//message is comprised of multiple frames or the frame is split into multiple packets
 			if (info->index == 0) {
 				if (info->num == 0)
-					os_printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
-				os_printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
+					DBG_OUTPUT_PORT.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
+				DBG_OUTPUT_PORT.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
 			}
-			os_printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT) ? "text" : "binary", info->index, info->index + length);
+			DBG_OUTPUT_PORT.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT) ? "text" : "binary", info->index, info->index + length);
 
-			if (info->opcode == WS_TEXT) { // Text
+			if (info->opcode == WS_TEXT) {
 				for (size_t i = 0; i < info->len; i++) {
 					msg += (char)payload[i];
 				}
@@ -516,12 +486,12 @@ void webSocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsE
 					msg += buff;
 				}
 			}
-			os_printf("%s\r\n", msg.c_str());
-
+			DBG_OUTPUT_PORT.printf("%s\r\n", msg.c_str());
+			
 			if ((info->index + length) == info->len) {
-				os_printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(), client->id(), info->num, info->len);
+				DBG_OUTPUT_PORT.printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(), client->id(), info->num, info->len);
 				if (info->final) {
-					os_printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
+					DBG_OUTPUT_PORT.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
 					if (info->message_opcode == WS_TEXT)
 						client->text("I got your text message");
 					else
@@ -530,11 +500,12 @@ void webSocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsE
 			}
 		}
 		// send message to client
-		//client->text("message here");
+	    client->text("message here");
 
 		// send data to all connected clients
-		//client->message("message here");
+		client->message();
 		// webSocket.broadcastTXT("message here");
+		break;
 	}
 
 }

@@ -77,15 +77,15 @@
 			document.getElementById("ssid").value = value;
 		}
 
+
 		window.onload = function ()
 		{
 			load("style.css","css", function()
 			{
 				load("microajax.js","js", function()
 				{
-				    setValues("/admin/clearscan");
 					setValues("/admin/values");
-					setTimeout(GetState,5000);
+					setTimeout(GetState,3000);
 				});
 			});
 		}
@@ -107,7 +107,6 @@
 				document.getElementsByTagName("head")[0].appendChild(a)
 			}
 		}
-		var intervalID = window.setInterval(GetState, 10000);
 
 
 

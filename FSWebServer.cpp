@@ -3,7 +3,7 @@
 // 
 #define DBG_OUTPUT_PORT Serial
 
-//#define DEBUG_WEBSERVER
+#define DEBUG_WEBSERVER
 
 #include "FSWebServer.h"
 #include "DynamicData.h"
@@ -327,12 +327,6 @@ void serverInit() {
 		send_NTP_configuration_html(request);
 	});
 	//server.on("/admin/devicename", send_devicename_value_html);
-	server.on("/admin/clearscan", [](AsyncWebServerRequest *request) {
-		DBG_OUTPUT_PORT.println(request->url());
-		if (!checkAuth(request))
-			return request->requestAuthentication();
-		clearScan(request);
-	});
 	server.on("/admin/restart", [](AsyncWebServerRequest *request) {
 		DBG_OUTPUT_PORT.println(request->url());
 		if (!checkAuth(request))

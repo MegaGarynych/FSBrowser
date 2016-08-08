@@ -44,8 +44,6 @@ String GetMacAddress();
 
 void sendTimeData();
 
-void clearScan(AsyncWebServerRequest *request);
-
 void webSocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *payload, size_t lenght);
 
 #endif

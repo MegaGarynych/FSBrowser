@@ -147,6 +147,5 @@ void loop(void){
 	  secondFlag = false;
 	  secondTask(); 
   }
-  //wsServer.loop(); // Handle WebSocket server requests
   ArduinoOTA.handle();
 }

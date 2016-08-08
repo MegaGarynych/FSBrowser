@@ -15,7 +15,7 @@
 extern ntpClient* ntp;
 
 #ifdef DEBUG_DYNAMICDATA
-//int wsNumber = 0;
+int wsNumber = 0;
 #endif // DEBUG_DYNAMICDATA
 
 const char Page_WaitAndReload[] PROGMEM = R"=====(
@@ -411,59 +411,101 @@ void send_update_firmware_values_html(AsyncWebServerRequest *request) {
 #endif // DEBUG_DYNAMICDATA
 }
 
-/*void sendTimeData() {
-	for (int i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++) {
+void sendTimeData() {
+	String time = "T" + ntp->getTimeStr();
+	ws.textAll(time);
+	String date = "D" + ntp->getDateStr();
+	ws.textAll(date);
+	String sync = "S" + ntp->getTimeString(ntp->getLastNTPSync());
+	ws.textAll(sync);
 #ifdef DEBUG_DYNAMICDATA
-		//DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
+	//DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);
 #endif // DEBUG_DYNAMICDATA
-		String time = "T" + ntp->getTimeStr();
-		wsServer.sendTXT(i, time);
-		String date = "D" + ntp->getDateStr();
-		wsServer.sendTXT(i, date);
-		String sync = "S" + ntp->getTimeString(ntp->getLastNTPSync());
-		wsServer.sendTXT(i, sync);
-	}
 }
 
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
+void webSocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *payload, size_t length) {
 
 	switch (type) {
-	case WStype_DISCONNECTED:
+	case WS_EVT_DISCONNECT:
 #ifdef DEBUG_DYNAMICDATA
-		DBG_OUTPUT_PORT.printf("[%u] Disconnected!\n", num);
+		DBG_OUTPUT_PORT.printf("[%u] Disconnected!\n", client->id());
 #endif // DEBUG_DYNAMICDATA
 		break;
-	case WStype_CONNECTED:
+	case WS_EVT_CONNECT:
 	{
 #ifdef DEBUG_DYNAMICDATA
-		wsNumber = num;
-		IPAddress ip = wsServer.remoteIP(num);
-		DBG_OUTPUT_PORT.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+		wsNumber = client->id();
+		IPAddress ip = client->remoteIP();
+		DBG_OUTPUT_PORT.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", client->id(), ip[0], ip[1], ip[2], ip[3], payload);
 #endif // DEBUG_DYNAMICDATA
 
 		// send message to client
 		//wsServer.sendTXT(num, "Connected");
 	}
 	break;
-	case WStype_TEXT:
+	case WS_EVT_DATA:
+		AwsFrameInfo * info = (AwsFrameInfo*)arg;
+		String msg = "";
+		if (info->final && info->index == 0 && info->len == length) {
+			//the whole message is in a single frame and we got all of it's data
+			if (info->opcode == WS_TEXT) {
+				for (size_t i = 0; i < info->len; i++) {
+					msg += (char)payload[i];
+				}
+			}
+			else { // Binary
+				char buff[3];
+				for (size_t i = 0; i < info->len; i++) {
+					sprintf(buff, "%02x ", (uint8_t)payload[i]);
+					msg += buff;
+				}
+			}
 #ifdef DEBUG_DYNAMICDATA
-		DBG_OUTPUT_PORT.printf("[%u] get Text: %s\n", num, payload);
+			DBG_OUTPUT_PORT.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT) ? "text" : "binary", info->len);
+			DBG_OUTPUT_PORT.printf("%s\r\n", msg.c_str());
 #endif // DEBUG_DYNAMICDATA
+		}
+		else {
+			//message is comprised of multiple frames or the frame is split into multiple packets
+			if (info->index == 0) {
+				if (info->num == 0)
+					DBG_OUTPUT_PORT.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
+				DBG_OUTPUT_PORT.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
+			}
+			DBG_OUTPUT_PORT.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT) ? "text" : "binary", info->index, info->index + length);
+
+			if (info->opcode == WS_TEXT) {
+				for (size_t i = 0; i < info->len; i++) {
+					msg += (char)payload[i];
+				}
+			}
+			else { // Binary
+				char buff[3];
+				for (size_t i = 0; i < info->len; i++) {
+					sprintf(buff, "%02x ", (uint8_t)payload[i]);
+					msg += buff;
+				}
+			}
+			DBG_OUTPUT_PORT.printf("%s\r\n", msg.c_str());
+			
+			if ((info->index + length) == info->len) {
+				DBG_OUTPUT_PORT.printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(), client->id(), info->num, info->len);
+				if (info->final) {
+					DBG_OUTPUT_PORT.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
+					if (info->message_opcode == WS_TEXT)
+						client->text("I got your text message");
+					else
+						client->binary("I got your binary message");
+				}
+			}
+		}
 		// send message to client
-		// webSocket.sendTXT(num, "message here");
+	    client->text("message here");
 
 		// send data to all connected clients
+		client->message();
 		// webSocket.broadcastTXT("message here");
-		break;
-	case WStype_BIN:
-#ifdef DEBUG_DYNAMICDATA
-		DBG_OUTPUT_PORT.printf("[%u] get binary lenght: %u\n", num, lenght);
-#endif // DEBUG_DYNAMICDATA
-		hexdump(payload, lenght);
-
-		// send message to client
-		// webSocket.sendBIN(num, payload, lenght);
 		break;
 	}
 
-}*/
+}

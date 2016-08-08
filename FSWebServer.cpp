@@ -10,6 +10,7 @@
 #include "Config.h"
 
 AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
 File fsUploadFile;
 String browserMD5="";
 static uint32_t updateSize = 0;
@@ -372,6 +373,9 @@ void serverInit() {
 		request->send(response);
 		ESP.restart();
 	}, updateFirmware);
+
+	ws.onEvent(webSocketEvent);
+	server.addHandler(&ws);
 
 	//called when the url is not defined here
 	//use it to load content from SPIFFS

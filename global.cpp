@@ -88,9 +88,9 @@ void secondTick()
 
 void secondTask() {
 #ifdef DEBUG_GLOBALH
-	//DBG_OUTPUT_PORT.println(ntp->getTimeString());
+	DBG_OUTPUT_PORT.println(ntp->getTimeString());
 #endif // DEBUG_GLOBALH
-	//sendTimeData();
+	sendTimeData();
 }
 
 String urldecode(String input) // (based on https://code.google.com/p/avr-netino/)

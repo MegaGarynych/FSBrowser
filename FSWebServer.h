@@ -20,6 +20,7 @@
 #include <FS.h>
 
 extern AsyncWebServer server;
+extern AsyncWebSocket ws;
 
 //holds the current upload
 extern File fsUploadFile;
@@ -32,7 +33,7 @@ String formatBytes(size_t bytes);
 * @param[in] File name with extension
 * @param[out] MIME content type
 */
-String getContentType(String filename);
+String getContentType(String filename, AsyncWebServerRequest *request);
 
 /**
 * Gets a file from SPIFFS and streams it to web browser

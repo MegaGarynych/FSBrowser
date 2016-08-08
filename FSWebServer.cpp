@@ -78,14 +78,16 @@ bool handleFileRead(String path, AsyncWebServerRequest *request) {
 }
 
 void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-	if (request->url() != "/edit") return;
-	if (!index) {
+	//if (request->url() != "/edit") return;
+	if (!index) { // Start
 #ifdef DEBUG_WEBSERVER
 		DBG_OUTPUT_PORT.printf("handleFileUpload Name: %s\n", filename.c_str());
 #endif // DEBUG_WEBSERVER
+		if (!filename.startsWith("/")) filename = "/" + filename;
+		fsUploadFile = SPIFFS.open(filename, "w");
+
 	}
-	if (!filename.startsWith("/")) filename = "/" + filename;
-	fsUploadFile = SPIFFS.open(filename, "w");
+	// Continue
 	if (fsUploadFile) {
 		if (fsUploadFile.write(data, len) != len) {
 			DBG_OUTPUT_PORT.println("Write error during upload");
@@ -95,7 +97,7 @@ void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t in
 		if (fsUploadFile)
 			fsUploadFile.write(data[i]);
 	}*/
-	if (final) {
+	if (final) { // End
 		if (fsUploadFile)
 			fsUploadFile.close();
 #ifdef DEBUG_WEBSERVER

@@ -61,13 +61,13 @@ bool handleFileRead(String path, AsyncWebServerRequest *request) {
 	String contentType = getContentType(path,request);
 	String pathWithGz = path + ".gz";
 	if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
-		if (SPIFFS.exists(pathWithGz))
+		if (SPIFFS.exists(pathWithGz)) {
 			path += ".gz";
+			DBG_OUTPUT_PORT.println("Path with gz");
+		}
 		//File file = SPIFFS.open(path, "r");
 		request->send(SPIFFS, path, contentType);
-		//size_t sent = request->streamFile(file, contentType);
-		//DBG_OUTPUT_PORT.printf("File %s exist\n", file.name());
-		//file.close();
+		DBG_OUTPUT_PORT.printf("File %s exist\n", path);
 		return true;
 	}
 #ifdef DEBUG_WEBSERVER

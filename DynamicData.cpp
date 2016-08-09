@@ -425,14 +425,12 @@ void sendTimeData() {
 
 void webSocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *payload, size_t length) {
 
-	switch (type) {
-	case WS_EVT_DISCONNECT:
+	if (type == WS_EVT_DISCONNECT) {
 #ifdef DEBUG_DYNAMICDATA
 		DBG_OUTPUT_PORT.printf("[%u] Disconnected!\n", client->id());
 #endif // DEBUG_DYNAMICDATA
-		break;
-	case WS_EVT_CONNECT:
-	{
+	}
+	else if (type == WS_EVT_CONNECT) {
 #ifdef DEBUG_DYNAMICDATA
 		wsNumber = client->id();
 		IPAddress ip = client->remoteIP();
@@ -442,8 +440,7 @@ void webSocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsE
 		// send message to client
 		//wsServer.sendTXT(num, "Connected");
 	}
-	break;
-	case WS_EVT_DATA:
+	else if (type == WS_EVT_DATA) {
 		AwsFrameInfo * info = (AwsFrameInfo*)arg;
 		String msg = "";
 		if (info->final && info->index == 0 && info->len == length) {
@@ -467,14 +464,15 @@ void webSocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsE
 		}
 		else {
 			//message is comprised of multiple frames or the frame is split into multiple packets
-			if (info->index == 0) {
+			if (info->index == 0) { // Message start
 				if (info->num == 0)
 					DBG_OUTPUT_PORT.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
 				DBG_OUTPUT_PORT.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
 			}
+			// Continue message
 			DBG_OUTPUT_PORT.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT) ? "text" : "binary", info->index, info->index + length);
 
-			if (info->opcode == WS_TEXT) {
+			if (info->opcode == WS_TEXT) { // Text
 				for (size_t i = 0; i < info->len; i++) {
 					msg += (char)payload[i];
 				}
@@ -487,8 +485,8 @@ void webSocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsE
 				}
 			}
 			DBG_OUTPUT_PORT.printf("%s\r\n", msg.c_str());
-			
-			if ((info->index + length) == info->len) {
+
+			if ((info->index + length) == info->len) { // Message end
 				DBG_OUTPUT_PORT.printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(), client->id(), info->num, info->len);
 				if (info->final) {
 					DBG_OUTPUT_PORT.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
@@ -500,12 +498,12 @@ void webSocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsE
 			}
 		}
 		// send message to client
-	    client->text("message here");
+		//client->text("message here");
 
 		// send data to all connected clients
-		client->message();
+		//client->message();
 		// webSocket.broadcastTXT("message here");
-		break;
+	
 	}
 
 }

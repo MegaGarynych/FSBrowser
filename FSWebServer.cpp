@@ -67,7 +67,7 @@ bool handleFileRead(String path, AsyncWebServerRequest *request) {
 		}
 		//File file = SPIFFS.open(path, "r");
 		request->send(SPIFFS, path, contentType);
-		DBG_OUTPUT_PORT.printf("File %s exist\n", path);
+		DBG_OUTPUT_PORT.printf("File %s exist\n", path.c_str());
 		return true;
 	}
 #ifdef DEBUG_WEBSERVER

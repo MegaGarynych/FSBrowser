@@ -1,0 +1,14 @@
+** Drc report for G:\C\Users\gmag1\Dropbox\Arduino\FSBrowser\kicad\WeMos\Wemos FSBrowser.kicad_pcb **
+** Created on  **
+
+** Found 0 DRC errors **
+
+** Found 2 unconnected pads **
+ErrType(2): Unconnected pads
+    @ (147,030 mm,106,845 mm): Pad 2 on F.Cu, Non-copper of SW1 net Net-(R1-Pad1)
+    @ (147,030 mm,98,895 mm): Pad 2 on F.Cu, Non-copper of SW1
+ErrType(2): Unconnected pads
+    @ (142,530 mm,98,895 mm): Pad 1 on F.Cu, Non-copper of SW1 net +3V3
+    @ (142,530 mm,106,845 mm): Pad 1 on F.Cu, Non-copper of SW1
+
+** End of Report **

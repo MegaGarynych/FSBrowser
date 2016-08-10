@@ -54,20 +54,29 @@ bool handleFileRead(String path, AsyncWebServerRequest *request) {
 	DBG_OUTPUT_PORT.println("handleFileRead: " + path);
 #endif // DEBUG_WEBSERVER
 	if (CONNECTION_LED >= 0) {
-		flashLED(CONNECTION_LED, 1, 25); // Show activity on LED
+		// CANNOT RUN DELAY() INSIDE CALLBACK
+		//flashLED(CONNECTION_LED, 1, 25); // Show activity on LED
 	}
 	if (path.endsWith("/"))
 		path += "index.htm";
-	String contentType = getContentType(path,request);
+	String contentType = getContentType(path, request);
 	String pathWithGz = path + ".gz";
 	if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
 		if (SPIFFS.exists(pathWithGz)) {
 			path += ".gz";
-			DBG_OUTPUT_PORT.println("Path with gz");
 		}
+#ifdef DEBUG_WEBSERVER
+		DBG_OUTPUT_PORT.printf("Content type: %s\r\n", contentType.c_str());
+#endif // DEBUG_WEBSERVER
+		AsyncWebServerResponse *response = request->beginResponse(SPIFFS, path, contentType);
+		if (path.endsWith(".gz"))
+			response->addHeader("Content-Encoding", "gzip");
 		//File file = SPIFFS.open(path, "r");
-		request->send(SPIFFS, path, contentType);
+#ifdef DEBUG_WEBSERVER
 		DBG_OUTPUT_PORT.printf("File %s exist\n", path.c_str());
+#endif // DEBUG_WEBSERVER
+		request->send(response);
+
 		return true;
 	}
 #ifdef DEBUG_WEBSERVER

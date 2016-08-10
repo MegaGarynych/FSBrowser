@@ -88,7 +88,7 @@ void secondTick()
 
 void secondTask() {
 #ifdef DEBUG_GLOBALH
-	DBG_OUTPUT_PORT.println(ntp->getTimeString());
+	//DBG_OUTPUT_PORT.println(ntp->getTimeString());
 #endif // DEBUG_GLOBALH
 	sendTimeData();
 }

@@ -1,6 +1,6 @@
-update=04/08/2016 7:57:54
+update=09/08/2016 18:11:16
 version=1
-last_client=eeschema
+last_client=kicad
 [general]
 version=1
 RootSch=
@@ -29,7 +29,7 @@ version=1
 NetIExt=net
 [eeschema]
 version=1
-LibDir=O:/Documents/_PRIVATE/Dropbox/Kicad/libraries
+LibDir=G:/C/Users/gmag1/Dropbox/Kicad/libraries
 [eeschema/libraries]
 LibName1=power
 LibName2=device
@@ -61,3 +61,5 @@ LibName27=atmel
 LibName28=contrib
 LibName29=valves
 LibName30=O:/Documents/_PRIVATE/Dropbox/Kicad/libraries/kicad-ESP8266/ESP8266
+LibName31=SPX3819/SPX3819M5-L-3-3
+LibName32=kicad-ESP8266/ESP8266

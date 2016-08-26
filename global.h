@@ -32,7 +32,7 @@ typedef enum {
 
 extern Ticker secondTk; // Second - Timer to do periodic tasks
 extern boolean secondFlag; // Flag to activate periodic task
-extern ntpClient* ntp; // NtpClient instance
+//extern ntpClient* ntp; // NtpClient instance
 
 extern long wifiDisconnectedSince; // When disconnected, time since this situation has happened
 

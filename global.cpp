@@ -15,7 +15,7 @@ int AdminTimeOutCounter = 0;
 
 Ticker secondTk;
 boolean secondFlag = false;
-ntpClient* ntp;
+//ntpClient* ntp;
 //boolean wifiIsConnected = false;
 long wifiDisconnectedSince = 0;
 wifiStatus currentWifiStatus = FIRST_RUN;
@@ -88,7 +88,7 @@ void secondTick()
 
 void secondTask() {
 #ifdef DEBUG_GLOBALH
-	//DBG_OUTPUT_PORT.println(ntp->getTimeString());
+	//DBG_OUTPUT_PORT.println(NTP.getTimeDateString());
 #endif // DEBUG_GLOBALH
 	sendTimeData();
 }

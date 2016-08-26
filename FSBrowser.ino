@@ -119,10 +119,9 @@ void setup(void){
   DBG_OUTPUT_PORT.printf("Free flash space: %u\n", ESP.getFreeSketchSpace());
 #endif
   // NTP client setup
-  ntp = ntpClient::getInstance(config.ntpServerName, config.timezone/10 , config.daylight);
   if (config.Update_Time_Via_NTP_Every > 0) { // Enable NTP sync
-	  ntp->setInterval(15, config.Update_Time_Via_NTP_Every*60);
-	  ntp->begin();
+	  NTP.begin(config.ntpServerName, config.timezone / 10, config.daylight);
+	  NTP.setInterval(15, config.Update_Time_Via_NTP_Every * 60);
   }
   serverInit(); // Configure and start Web server
 
@@ -131,8 +130,11 @@ void setup(void){
   //wsServer.onEvent(webSocketEvent);
 
   
-
-  
+  while (!WiFi.isConnected()) {
+	  Serial.print('.');
+	  delay(500);
+  }
+  Serial.println();
   MDNS.begin(config.DeviceName.c_str()); // I've not got this to work. Need some investigation.
   MDNS.addService("http", "tcp", 80);
   ConfigureOTA(httpAuth.wwwPassword.c_str());

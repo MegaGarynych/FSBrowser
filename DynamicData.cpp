@@ -12,7 +12,7 @@
 #include <NtpClientLib.h>
 #include <StreamString.h>
 
-extern ntpClient* ntp;
+//extern ntpClient* ntp;
 
 #ifdef DEBUG_DYNAMICDATA
 int wsNumber = 0;
@@ -152,9 +152,9 @@ void send_information_values_html(AsyncWebServerRequest *request)
 	values += "x_netmask|" + (String)WiFi.subnetMask()[0] + "." + (String)WiFi.subnetMask()[1] + "." + (String)WiFi.subnetMask()[2] + "." + (String)WiFi.subnetMask()[3] + "|div\n";
 	values += "x_mac|" + GetMacAddress() + "|div\n";
 	values += "x_dns|" + (String)WiFi.dnsIP()[0] + "." + (String)WiFi.dnsIP()[1] + "." + (String)WiFi.dnsIP()[2] + "." + (String)WiFi.dnsIP()[3] + "|div\n";
-	values += "x_ntp_sync|" + ntp->getTimeString(ntp->getLastNTPSync()) + "|div\n";
-	values += "x_ntp_time|" + ntp->getTimeStr() + "|div\n";
-	values += "x_ntp_date|" + ntp->getDateStr() + "|div\n";
+	values += "x_ntp_sync|" + NTP.getTimeDateString(NTP.getLastNTPSync()) + "|div\n";
+	values += "x_ntp_time|" + NTP.getTimeStr() + "|div\n";
+	values += "x_ntp_date|" + NTP.getDateStr() + "|div\n";
 	
 	request->send(200, "text/plain", values);
 #ifdef DEBUG_DYNAMICDATA
@@ -283,17 +283,17 @@ void send_NTP_configuration_html(AsyncWebServerRequest *request)
 		for (uint8_t i = 0; i < request->args(); i++) {
 			if (request->argName(i) == "ntpserver") {
 				config.ntpServerName = urldecode(request->arg(i));
-				ntp->setNtpServerName(config.ntpServerName);
+				NTP.setNtpServerName(config.ntpServerName);
 				continue;
 			}
 			if (request->argName(i) == "update") {
 				config.Update_Time_Via_NTP_Every = request->arg(i).toInt();
-				ntp->setInterval(config.Update_Time_Via_NTP_Every * 60);
+				NTP.setInterval(config.Update_Time_Via_NTP_Every * 60);
 				continue;
 			}
 			if (request->argName(i) == "tz") {
 				config.timezone = request->arg(i).toInt();
-				ntp->setTimeZone(config.timezone / 10);
+				NTP.setTimeZone(config.timezone / 10);
 				continue;
 			}
 			if (request->argName(i) == "dst") {
@@ -305,11 +305,11 @@ void send_NTP_configuration_html(AsyncWebServerRequest *request)
 			}
 		}
 		
-		ntp->setDayLight(config.daylight);
+		NTP.setDayLight(config.daylight);
 		save_config();
 		//firstStart = true;
 		
-		setTime(ntp->getTime()); //set time
+		setTime(NTP.getTime()); //set time
 	}
 	handleFileRead("/ntp.html", request);
 	//server.send(200, "text/html", PAGE_NTPConfiguration);
@@ -412,11 +412,11 @@ void send_update_firmware_values_html(AsyncWebServerRequest *request) {
 }
 
 void sendTimeData() {
-	String time = "T" + ntp->getTimeStr();
+	String time = "T" + NTP.getTimeStr();
 	ws.textAll(time);
-	String date = "D" + ntp->getDateStr();
+	String date = "D" + NTP.getDateStr();
 	ws.textAll(date);
-	String sync = "S" + ntp->getTimeString(ntp->getLastNTPSync());
+	String sync = "S" + NTP.getTimeDateString(NTP.getLastNTPSync());
 	ws.textAll(sync);
 #ifdef DEBUG_DYNAMICDATA
 	//DBG_OUTPUT_PORT.println(__PRETTY_FUNCTION__);

@@ -1,5 +1,7 @@
 #FSBrowser
 
+###This project is discontinued. I recommend you to go to [FSBrowserNG](https://github.com/gmag11/FSBrowserNG). It has same functionality and uses a faster web server library.
+
 ##Introduction
 I wanted to add a standard environment for all my ESP8266 based projects to be able to configure them via web browser to avoid code editing when I need to change some settings like SSID, password, etc.
 
